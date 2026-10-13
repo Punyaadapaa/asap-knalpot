@@ -1,392 +1,739 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Preview Peta — Kota Yogyakarta</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-<style>
-  :root {
-    --ink: #1a1a2e;
-    --ink-2: #4b5563;
-    --ink-3: #6b7280;
-    --line: #e5e7eb;
-    --surface: #ffffff;
-    --bg: #f6f7f9;
-    --good: #16a34a;
-    --warn: #d97706;
-    --bad: #dc2626;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    color: var(--ink);
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  header {
-    padding: 14px 18px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
-  }
-  header h1 { margin: 0; font-size: 17px; font-weight: 700; }
-  header p { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-2); }
-
-  .layout {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-  }
-  #map {
-    flex: 1;
-    min-height: 0;
-    background-color: #e4e9ea;
-    background-image:
-      linear-gradient(rgba(148,163,184,.28) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148,163,184,.28) 1px, transparent 1px);
-    background-size: 40px 40px, 40px 40px;
-  }
-
-  aside {
-    width: 320px;
-    padding: 16px;
-    overflow-y: auto;
-    background: var(--surface);
-    border-left: 1px solid var(--line);
-  }
-  .panel { margin-bottom: 18px; }
-  .panel h2 {
-    margin: 0 0 8px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 14px;
-  }
-  .big { font-size: 30px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-  .big .unit { font-size: 14px; font-weight: 600; color: var(--ink-3); }
-  .badge {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11.5px;
-    font-weight: 700;
-    background: #fef3c7;
-    color: #92400e;
-  }
-  .meta { margin-top: 10px; font-size: 11.5px; color: var(--ink-2); line-height: 1.5; }
-  .meta b { color: var(--ink); font-weight: 600; }
-
-  .bar {
-    height: 8px;
-    border-radius: 999px;
-    background: #e5e7eb;
-    overflow: hidden;
-    margin: 6px 0 4px;
-  }
-  .bar > span { display: block; height: 100%; background: var(--good); }
-  .bar.target > span { background: #94a3b8; }
-  .row { display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px; }
-  .row span:last-child { font-variant-numeric: tabular-nums; font-weight: 600; }
-
-  .pin {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    border: 2.5px solid #fff;
-    box-shadow: 0 1px 4px rgba(0,0,0,.35);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 11px; font-weight: 700;
-    font-variant-numeric: tabular-nums;
-  }
-  .pin.good { background: var(--good); }
-  .pin.warn { background: var(--warn); }
-  .pin.bad  { background: var(--bad); }
-
-  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); margin-top: 4px; flex-wrap: wrap; }
-  .legend i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: -1px; }
-
-  .note {
-    font-size: 11.5px;
-    color: var(--ink-2);
-    background: #f8fafc;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 10px;
-    line-height: 1.55;
-  }
-  code { font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
-
-  @media (max-width: 780px) {
-    .layout { flex-direction: column; }
-    aside { width: 100%; border-left: 0; border-top: 1px solid var(--line); max-height: 45%; }
-    #map { min-height: 55%; }
-  }
-</style>
-</head>
-<body>
-<header>
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-    <div>
-      <h1>Preview Peta — Kota Yogyakarta</h1>
-      <p>14 kecamatan · basemap: <b id="basemapName">Esri Street</b> · data AQI &amp; RTH kota (statis, contoh tampilan)</p>
-    </div>
-    <label style="font-size:12.5px;color:#4b5563;display:flex;align-items:center;gap:7px">
-      Basemap
-      <select id="basemapSelect" style="font:inherit;font-size:12.5px;padding:5px 8px;border:1px solid #e5e7eb;border-radius:7px;background:#fff;color:#1a1a2e"></select>
-    </label>
-  </div>
-</header>
-
-<div class="layout">
-  <div id="map"></div>
-  <div id="tileWarn" style="display:none;position:absolute;top:14px;left:14px;z-index:9999;max-width:300px;background:#fef3c7;border:1px solid #f59e0b;color:#78350f;padding:10px 12px;border-radius:8px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)">
-    <b>Basemap gagal dimuat.</b><br />
-    Pin &amp; data tetap tampil. Coba ganti basemap di menu atas, atau tekan tombol di bawah.<br />
-    <button id="retryTile" style="margin-top:8px;padding:5px 10px;border:1px solid #b45309;background:#fff;color:#78350f;border-radius:6px;font-size:11.5px;cursor:pointer;font-weight:600">Muat ulang basemap</button>
-  </div>
-
-  <aside>
-    <div class="panel">
-      <h2>Kualitas Udara (AQI)</h2>
-      <div class="card">
-        <div class="big" id="aqiVal">124</div>
-        <div class="badge">Tidak Sehat untuk Kelompok Sensitif</div>
-        <div class="meta">
-          Polutan dominan: <b>PM2.5 (124 µg/m³)</b><br />
-          Stasiun: <b>Sleman, Indonesia</b> · BMKG<br />
-          Jarak dari pusat kota: <b>±7 km</b>
-        </div>
-        <div class="note" style="margin-top:10px">
-          Kota Yogyakarta <b>tidak punya stasiun pemantau sendiri</b>. Nilai satu angka untuk seluruh kota, diambil dari stasiun terdekat.
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Ruang Hijau (RTH)</h2>
-      <div class="card">
-        <div class="big">23,35<span class="unit">%</span></div>
-        <div class="meta">
-          Publik: <b>8,06%</b> · Privat: <b>15,29%</b><br />
-          Sumber: <b>Pemkot Yogyakarta, Mar 2026</b>
-        </div>
-        <div class="bar target"><span style="width:78%"></span></div>
-        <div class="row"><span>Target UU 26/2007</span><span>30%</span></div>
-        <div class="note" style="margin-top:10px">
-          Angka level kota, tidak tersedia per kecamatan.
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Laporan Gejala (contoh seed)</h2>
-      <div class="card">
-        <div class="legend">
-          <span><i style="background:#16a34a"></i>Normal</span>
-          <span><i style="background:#d97706"></i>Naik</span>
-          <span><i style="background:#dc2626"></i>Tinggi</span>
-        </div>
-        <div class="meta" style="margin-top:10px" id="seedInfo">
-          Angka di dalam pin = jumlah laporan gejala 7 hari (data demonstrasi).
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Cek mandiri</h2>
-      <div class="note">
-        Klik pin untuk lihat detail. Zoom/geser peta untuk memastikan wilayah &amp; posisi kecamatan sudah benar.<br /><br />
-        <code>data/lokasi.json</code><br />
-        <code>data/lingkungan.json</code>
-      </div>
-    </div>
-  </aside>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-<script>
-  // ---- Data (salinan dari data/lokasi.json) ----
-  const LOKASI = [
-    { id:"kec-3471001", nama:"Danurejan",    lat:-7.7931435, lng:110.3717869 },
-    { id:"kec-3471002", nama:"Gedongtengen", lat:-7.7918229, lng:110.3608025 },
-    { id:"kec-3471003", nama:"Gondokusuman", lat:-7.7867439, lng:110.3809996 },
-    { id:"kec-3471004", nama:"Gondomanan",   lat:-7.8024328, lng:110.3661119 },
-    { id:"kec-3471005", nama:"Jetis",        lat:-7.7815139, lng:110.3646692 },
-    { id:"kec-3471006", nama:"Kraton",       lat:-7.8087986, lng:110.3627263 },
-    { id:"kec-3471007", nama:"Mantrijeron",  lat:-7.8180678, lng:110.3597226 },
-    { id:"kec-3471008", nama:"Mergangsan",   lat:-7.8147344, lng:110.3725580 },
-    { id:"kec-3471009", nama:"Ngampilan",    lat:-7.8021833, lng:110.3576025 },
-    { id:"kec-3471010", nama:"Kotagede",     lat:-7.8183105, lng:110.3979409 },
-    { id:"kec-3471011", nama:"Pakualaman",   lat:-7.8008307, lng:110.3757480 },
-    { id:"kec-3471012", nama:"Tegalrejo",    lat:-7.7804549, lng:110.3550730 },
-    { id:"kec-3471013", nama:"Umbulharjo",   lat:-7.8143777, lng:110.3873737 },
-    { id:"kec-3471014", nama:"Wirobrajan",   lat:-7.8026238, lng:110.3504467 }
-  ];
-
-  // Seed laporan gejala (contoh demo). Angka < 3 = disembunyikan (privasi).
-  const SEED = {
-    "Danurejan":4, "Gedongtengen":2, "Gondokusuman":12, "Gondomanan":3,
-    "Jetis":6, "Kraton":1, "Mantrijeron":5, "Mergangsan":9,
-    "Ngampilan":2, "Kotagede":7, "Pakualaman":1, "Tegalrejo":11,
-    "Umbulharjo":15, "Wirobrajan":4
-  };
-  const SEBELUMNYA = {
-    "Danurejan":3, "Gondokusuman":5, "Gondomanan":3, "Jetis":4,
-    "Mantrijeron":4, "Mergangsan":3, "Kotagede":6, "Tegalrejo":6,
-    "Umbulharjo":7, "Wirobrajan":3
-  };
-
-  function statusFor(nama, sekarang, lalu) {
-    if (sekarang < 3) return { key:"tersembunyi", warna:"#cbd5e1", teks:"Tersembunyi ( <3 laporan )", kelas:"good" };
-    const naik50 = lalu > 0 ? (sekarang - lalu) / lalu >= 0.5 : false;
-    if (sekarang >= 5 && naik50) return { key:"naik", warna:"#d97706", teks:"Naik vs 7 hari sebelumnya", kelas:"warn" };
-    if (sekarang >= 10) return { key:"tinggi", warna:"#dc2626", teks:"Jumlah laporan tinggi", kelas:"bad" };
-    return { key:"normal", warna:"#16a34a", teks:"Dalam batas normal", kelas:"good" };
-  }
-
-  // ---- Peta ----
-  const PUSAT = [-7.7956, 110.3695];
-  const map = L.map('map', {
-    zoomControl: true,
-    scrollWheelZoom: true,
-    fadeAnimation: true,
-    zoomAnimation: true,
-    markerZoomAnimation: true
-  }).setView(PUSAT, 13);
-  setTimeout(function(){ map.invalidateSize(); }, 250);
-  window.addEventListener('resize', function(){ map.invalidateSize(); });
-
-  // Basemap default: Esri World Street Map (tidak memakai tile.openstreetmap.org, tidak akan kena block OSM)
-  const BASEMAPS = {
-    'Esri Street': {
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-      opts: { maxZoom: 19, maxNativeZoom: 19,
-        attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Esri, DeLorme, NAVTEQ' }
-    },
-    'Esri Light Gray': {
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-      opts: { maxZoom: 19, maxNativeZoom: 16,
-        attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Esri, HERE, Garmin' }
-    },
-    'Esri Imagery (satelit)': {
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      opts: { maxZoom: 19, maxNativeZoom: 19,
-        attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Esri, Maxar, Earthstar Geographics' }
-    },
-    'CARTO Light': {
-      url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      opts: { subdomains: 'abcd', maxZoom: 20, detectRetina: true,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>' }
-    }
-  };
-
-  let baseLayer = null;
-  let tileErrors = 0;
-
-  function setBasemap(name) {
-    if (baseLayer) { map.removeLayer(baseLayer); }
-    const cfg = BASEMAPS[name];
-    tileErrors = 0;
-    baseLayer = L.tileLayer(cfg.url, Object.assign({
-      errorTileUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-    }, cfg.opts));
-    baseLayer.addTo(map);
-    baseLayer.on('tileerror', function () {
-      tileErrors++;
-      if (tileErrors > 3) {
-        const n = document.getElementById('tileWarn');
-        if (n) n.style.display = 'block';
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview Peta — Kota Yogyakarta</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+    />
+    <style>
+      :root {
+        --ink: #1a1a2e;
+        --ink-2: #4b5563;
+        --ink-3: #6b7280;
+        --line: #e5e7eb;
+        --surface: #ffffff;
+        --bg: #f6f7f9;
+        --good: #16a34a;
+        --warn: #d97706;
+        --bad: #dc2626;
       }
-    });
-    const label = document.getElementById('basemapName');
-    if (label) label.textContent = name;
-  }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          Arial,
+          sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      header {
+        padding: 14px 18px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+      }
+      header p {
+        margin: 4px 0 0;
+        font-size: 12.5px;
+        color: var(--ink-2);
+      }
 
-  const baseSelect = document.getElementById('basemapSelect');
-  if (baseSelect) {
-    Object.keys(BASEMAPS).forEach(function (k) {
-      const o = document.createElement('option');
-      o.value = k; o.textContent = k;
-      baseSelect.appendChild(o);
-    });
-    baseSelect.value = 'Esri Street';
-    baseSelect.addEventListener('change', function () { setBasemap(baseSelect.value); });
-  }
-  setBasemap('Esri Street');
+      .layout {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+      }
+      #map {
+        flex: 1;
+        min-height: 0;
+        background-color: #e4e9ea;
+        background-image:
+          linear-gradient(rgba(148, 163, 184, 0.28) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.28) 1px, transparent 1px);
+        background-size:
+          40px 40px,
+          40px 40px;
+      }
 
-  document.addEventListener('click', function (e) {
-    if (e.target && e.target.id === 'retryTile') {
-      const n = document.getElementById('tileWarn');
-      if (n) n.style.display = 'none';
-      tileErrors = 0;
-      if (baseLayer) baseLayer.redraw();
-    }
-  });
+      aside {
+        width: 320px;
+        padding: 16px;
+        overflow-y: auto;
+        background: var(--surface);
+        border-left: 1px solid var(--line);
+      }
+      .panel {
+        margin-bottom: 18px;
+      }
+      .panel h2 {
+        margin: 0 0 8px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .big {
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .big .unit {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-3);
+      }
+      .badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 700;
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .meta {
+        margin-top: 10px;
+        font-size: 11.5px;
+        color: var(--ink-2);
+        line-height: 1.5;
+      }
+      .meta b {
+        color: var(--ink);
+        font-weight: 600;
+      }
 
-  function pinIcon(nilaiDipakai, warna) {
-    const label = nilaiDipakai < 3 ? '–' : nilaiDipakai;
-    return L.divIcon({
-      className: '',
-      html: '<div class="pin ' + (warna==="#d97706"?"warn":warna==="#dc2626"?"bad":"good") + '" '
-          + 'style="background:' + warna + '">' + label + '</div>',
-      iconSize: [26,26],
-      iconAnchor: [13,13]
-    });
-  }
+      .bar {
+        height: 8px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        overflow: hidden;
+        margin: 6px 0 4px;
+      }
+      .bar > span {
+        display: block;
+        height: 100%;
+        background: var(--good);
+      }
+      .bar.target > span {
+        background: #94a3b8;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      .row span:last-child {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+      }
 
-  // Kelompok marker agar tidak tumpang tindih
-  const cluster = L.markerClusterGroup({
-    showCoverageOnHover: false,
-    maxClusterRadius: 40,
-    spiderfyOnMaxZoom: true
-  });
+      .pin {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 2.5px solid #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .pin.good {
+        background: var(--good);
+      }
+      .pin.warn {
+        background: var(--warn);
+      }
+      .pin.bad {
+        background: var(--bad);
+      }
 
-  LOKASI.forEach(function(l) {
-    const nilai = SEED[l.nama] || 0;
-    const lalu = SEBELUMNYA[l.nama] || 0;
-    const st = statusFor(l.nama, nilai, lalu);
-    const tampil = nilai < 3;
+      .legend {
+        display: flex;
+        gap: 14px;
+        font-size: 12px;
+        color: var(--ink-2);
+        margin-top: 4px;
+        flex-wrap: wrap;
+      }
+      .legend i {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+        vertical-align: -1px;
+      }
 
-    const marker = L.marker([l.lat, l.lng], { icon: pinIcon(nilai, st.warna) });
+      .note {
+        font-size: 11.5px;
+        color: var(--ink-2);
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        line-height: 1.55;
+      }
+      code {
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 11px;
+      }
 
-    const html =
-      '<div style="font-family:system-ui,sans-serif;min-width:180px">' +
-        '<div style="font-weight:700;font-size:14px;margin-bottom:6px">' + l.nama + '</div>' +
-        '<div style="font-size:12.5px;color:#4b5563;line-height:1.6">' +
-          'Laporan 7 hari: <b>' + (tampil ? '&lt; 3 (disembunyikan)' : nilai) + '</b><br />' +
-          (tampil ? '' : '7 hari sebelumnya: <b>' + (lalu || 0) + '</b><br />') +
-          'Status: <b style="color:' + st.warna + '">' + st.teks + '</b><br />' +
-          '<span style="color:#6b7280">' + l.id + ' · ' +
-          l.lat.toFixed(4) + ', ' + l.lng.toFixed(4) + '</span>' +
-        '</div>' +
-      '</div>';
-    marker.bindPopup(html);
-    marker.bindTooltip(l.nama, { direction: 'top', offset: [0,-14] });
-    cluster.addLayer(marker);
-  });
-  map.addLayer(cluster);
+      @media (max-width: 780px) {
+        .layout {
+          flex-direction: column;
+        }
+        aside {
+          width: 100%;
+          border-left: 0;
+          border-top: 1px solid var(--line);
+          max-height: 45%;
+        }
+        #map {
+          min-height: 55%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          flex-wrap: wrap;
+        "
+      >
+        <div>
+          <h1>Preview Peta — Kota Yogyakarta</h1>
+          <p>
+            14 kecamatan · basemap: <b id="basemapName">Esri Street</b> · data
+            AQI &amp; RTH kota (statis, contoh tampilan)
+          </p>
+        </div>
+        <label
+          style="
+            font-size: 12.5px;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+          "
+        >
+          Basemap
+          <select
+            id="basemapSelect"
+            style="
+              font: inherit;
+              font-size: 12.5px;
+              padding: 5px 8px;
+              border: 1px solid #e5e7eb;
+              border-radius: 7px;
+              background: #fff;
+              color: #1a1a2e;
+            "
+          ></select>
+        </label>
+      </div>
+    </header>
 
-  // Sesuaikan tampilan ke seluruh marker
-  const bounds = L.latLngBounds(LOKASI.map(function(l){ return [l.lat, l.lng]; }));
-  map.fitBounds(bounds.pad(0.25), { animate: false });
+    <div class="layout">
+      <div id="map"></div>
+      <div
+        id="tileWarn"
+        style="
+          display: none;
+          position: absolute;
+          top: 14px;
+          left: 14px;
+          z-index: 9999;
+          max-width: 300px;
+          background: #fef3c7;
+          border: 1px solid #f59e0b;
+          color: #78350f;
+          padding: 10px 12px;
+          border-radius: 8px;
+          font-size: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        "
+      >
+        <b>Basemap gagal dimuat.</b><br />
+        Pin &amp; data tetap tampil. Coba ganti basemap di menu atas, atau tekan
+        tombol di bawah.<br />
+        <button
+          id="retryTile"
+          style="
+            margin-top: 8px;
+            padding: 5px 10px;
+            border: 1px solid #b45309;
+            background: #fff;
+            color: #78350f;
+            border-radius: 6px;
+            font-size: 11.5px;
+            cursor: pointer;
+            font-weight: 600;
+          "
+        >
+          Muat ulang basemap
+        </button>
+      </div>
 
-  // Kotak bounding kota (verifikasi cepat)
-  L.rectangle([[-7.84,110.33],[-7.76,110.42]], {
-    color: '#94a3b8', weight: 1, dashArray: '4 4', fill: false
-  }).addTo(map).bindTooltip('Bounding box Kota Yogyakarta');
-</script>
-</body>
+      <aside>
+        <div class="panel">
+          <h2>Kualitas Udara (AQI)</h2>
+          <div class="card">
+            <div class="big" id="aqiVal">124</div>
+            <div class="badge">Tidak Sehat untuk Kelompok Sensitif</div>
+            <div class="meta">
+              Polutan dominan: <b>PM2.5 (124 µg/m³)</b><br />
+              Stasiun: <b>Sleman, Indonesia</b> · BMKG<br />
+              Jarak dari pusat kota: <b>±7 km</b>
+            </div>
+            <div class="note" style="margin-top: 10px">
+              Kota Yogyakarta <b>tidak punya stasiun pemantau sendiri</b>. Nilai
+              satu angka untuk seluruh kota, diambil dari stasiun terdekat.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Ruang Hijau (RTH)</h2>
+          <div class="card">
+            <div class="big">23,35<span class="unit">%</span></div>
+            <div class="meta">
+              Publik: <b>8,06%</b> · Privat: <b>15,29%</b><br />
+              Sumber: <b>Pemkot Yogyakarta, Mar 2026</b>
+            </div>
+            <div class="bar target"><span style="width: 78%"></span></div>
+            <div class="row">
+              <span>Target UU 26/2007</span><span>30%</span>
+            </div>
+            <div class="note" style="margin-top: 10px">
+              Angka level kota, tidak tersedia per kecamatan.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Laporan Gejala (contoh seed)</h2>
+          <div class="card">
+            <div class="legend">
+              <span><i style="background: #16a34a"></i>Normal</span>
+              <span><i style="background: #d97706"></i>Naik</span>
+              <span><i style="background: #dc2626"></i>Tinggi</span>
+            </div>
+            <div class="meta" style="margin-top: 10px" id="seedInfo">
+              Angka di dalam pin = jumlah laporan gejala 7 hari (data
+              demonstrasi).
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Cek mandiri</h2>
+          <div class="note">
+            Klik pin untuk lihat detail. Zoom/geser peta untuk memastikan
+            wilayah &amp; posisi kecamatan sudah benar.<br /><br />
+            <code>data/lokasi.json</code><br />
+            <code>data/lingkungan.json</code>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script>
+      // ---- Data (salinan dari data/lokasi.json) ----
+      const LOKASI = [
+        {
+          id: "kec-3471001",
+          nama: "Danurejan",
+          lat: -7.7931435,
+          lng: 110.3717869,
+        },
+        {
+          id: "kec-3471002",
+          nama: "Gedongtengen",
+          lat: -7.7918229,
+          lng: 110.3608025,
+        },
+        {
+          id: "kec-3471003",
+          nama: "Gondokusuman",
+          lat: -7.7867439,
+          lng: 110.3809996,
+        },
+        {
+          id: "kec-3471004",
+          nama: "Gondomanan",
+          lat: -7.8024328,
+          lng: 110.3661119,
+        },
+        { id: "kec-3471005", nama: "Jetis", lat: -7.7815139, lng: 110.3646692 },
+        {
+          id: "kec-3471006",
+          nama: "Kraton",
+          lat: -7.8087986,
+          lng: 110.3627263,
+        },
+        {
+          id: "kec-3471007",
+          nama: "Mantrijeron",
+          lat: -7.8180678,
+          lng: 110.3597226,
+        },
+        {
+          id: "kec-3471008",
+          nama: "Mergangsan",
+          lat: -7.8147344,
+          lng: 110.372558,
+        },
+        {
+          id: "kec-3471009",
+          nama: "Ngampilan",
+          lat: -7.8021833,
+          lng: 110.3576025,
+        },
+        {
+          id: "kec-3471010",
+          nama: "Kotagede",
+          lat: -7.8183105,
+          lng: 110.3979409,
+        },
+        {
+          id: "kec-3471011",
+          nama: "Pakualaman",
+          lat: -7.8008307,
+          lng: 110.375748,
+        },
+        {
+          id: "kec-3471012",
+          nama: "Tegalrejo",
+          lat: -7.7804549,
+          lng: 110.355073,
+        },
+        {
+          id: "kec-3471013",
+          nama: "Umbulharjo",
+          lat: -7.8143777,
+          lng: 110.3873737,
+        },
+        {
+          id: "kec-3471014",
+          nama: "Wirobrajan",
+          lat: -7.8026238,
+          lng: 110.3504467,
+        },
+      ];
+
+      // Seed laporan gejala
+      const SEED = {
+        Danurejan: 4,
+        Gedongtengen: 2,
+        Gondokusuman: 12,
+        Gondomanan: 3,
+        Jetis: 6,
+        Kraton: 1,
+        Mantrijeron: 5,
+        Mergangsan: 9,
+        Ngampilan: 2,
+        Kotagede: 7,
+        Pakualaman: 1,
+        Tegalrejo: 11,
+        Umbulharjo: 15,
+        Wirobrajan: 4,
+      };
+      const SEBELUMNYA = {
+        Danurejan: 3,
+        Gondokusuman: 5,
+        Gondomanan: 3,
+        Jetis: 4,
+        Mantrijeron: 4,
+        Mergangsan: 3,
+        Kotagede: 6,
+        Tegalrejo: 6,
+        Umbulharjo: 7,
+        Wirobrajan: 3,
+      };
+
+      function statusFor(nama, sekarang, lalu) {
+        if (sekarang < 3)
+          return {
+            key: "tersembunyi",
+            warna: "#cbd5e1",
+            teks: "Tersembunyi ( <3 laporan )",
+            kelas: "good",
+          };
+        const naik50 = lalu > 0 ? (sekarang - lalu) / lalu >= 0.5 : false;
+        if (sekarang >= 5 && naik50)
+          return {
+            key: "naik",
+            warna: "#d97706",
+            teks: "Naik vs 7 hari sebelumnya",
+            kelas: "warn",
+          };
+        if (sekarang >= 10)
+          return {
+            key: "tinggi",
+            warna: "#dc2626",
+            teks: "Jumlah laporan tinggi",
+            kelas: "bad",
+          };
+        return {
+          key: "normal",
+          warna: "#16a34a",
+          teks: "Dalam batas normal",
+          kelas: "good",
+        };
+      }
+
+      // ---- Peta ----
+      const PUSAT = [-7.7956, 110.3695];
+      const map = L.map("map", {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        fadeAnimation: true,
+        zoomAnimation: true,
+        markerZoomAnimation: true,
+      }).setView(PUSAT, 13);
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 250);
+      window.addEventListener("resize", function () {
+        map.invalidateSize();
+      });
+
+      // Basemap default: Esri World Street Map
+      const BASEMAPS = {
+        "Esri Street": {
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+          opts: {
+            maxZoom: 19,
+            maxNativeZoom: 19,
+            attribution:
+              'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Esri, DeLorme, NAVTEQ',
+          },
+        },
+        "Esri Light Gray": {
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+          opts: {
+            maxZoom: 19,
+            maxNativeZoom: 16,
+            attribution:
+              'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Esri, HERE, Garmin',
+          },
+        },
+        "Esri Imagery (satelit)": {
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          opts: {
+            maxZoom: 19,
+            maxNativeZoom: 19,
+            attribution:
+              'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Esri, Maxar, Earthstar Geographics',
+          },
+        },
+        "CARTO Light": {
+          url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+          opts: {
+            subdomains: "abcd",
+            maxZoom: 20,
+            detectRetina: true,
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          },
+        },
+      };
+
+      let baseLayer = null;
+      let tileErrors = 0;
+
+      function setBasemap(name) {
+        if (baseLayer) {
+          map.removeLayer(baseLayer);
+        }
+        const cfg = BASEMAPS[name];
+        tileErrors = 0;
+        baseLayer = L.tileLayer(
+          cfg.url,
+          Object.assign(
+            {
+              errorTileUrl:
+                "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+            },
+            cfg.opts,
+          ),
+        );
+        baseLayer.addTo(map);
+        baseLayer.on("tileerror", function () {
+          tileErrors++;
+          if (tileErrors > 3) {
+            const n = document.getElementById("tileWarn");
+            if (n) n.style.display = "block";
+          }
+        });
+        const label = document.getElementById("basemapName");
+        if (label) label.textContent = name;
+      }
+
+      const baseSelect = document.getElementById("basemapSelect");
+      if (baseSelect) {
+        Object.keys(BASEMAPS).forEach(function (k) {
+          const o = document.createElement("option");
+          o.value = k;
+          o.textContent = k;
+          baseSelect.appendChild(o);
+        });
+        baseSelect.value = "Esri Street";
+        baseSelect.addEventListener("change", function () {
+          setBasemap(baseSelect.value);
+        });
+      }
+      setBasemap("Esri Street");
+
+      document.addEventListener("click", function (e) {
+        if (e.target && e.target.id === "retryTile") {
+          const n = document.getElementById("tileWarn");
+          if (n) n.style.display = "none";
+          tileErrors = 0;
+          if (baseLayer) baseLayer.redraw();
+        }
+      });
+
+      function pinIcon(nilaiDipakai, warna) {
+        const label = nilaiDipakai < 3 ? "–" : nilaiDipakai;
+        return L.divIcon({
+          className: "",
+          html:
+            '<div class="pin ' +
+            (warna === "#d97706"
+              ? "warn"
+              : warna === "#dc2626"
+                ? "bad"
+                : "good") +
+            '" ' +
+            'style="background:' +
+            warna +
+            '">' +
+            label +
+            "</div>",
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+        });
+      }
+
+      const cluster = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        maxClusterRadius: 40,
+        spiderfyOnMaxZoom: true,
+      });
+
+      LOKASI.forEach(function (l) {
+        const nilai = SEED[l.nama] || 0;
+        const lalu = SEBELUMNYA[l.nama] || 0;
+        const st = statusFor(l.nama, nilai, lalu);
+        const tampil = nilai < 3;
+
+        const marker = L.marker([l.lat, l.lng], {
+          icon: pinIcon(nilai, st.warna),
+        });
+
+        const html =
+          '<div style="font-family:system-ui,sans-serif;min-width:180px">' +
+          '<div style="font-weight:700;font-size:14px;margin-bottom:6px">' +
+          l.nama +
+          "</div>" +
+          '<div style="font-size:12.5px;color:#4b5563;line-height:1.6">' +
+          "Laporan 7 hari: <b>" +
+          (tampil ? "&lt; 3 (disembunyikan)" : nilai) +
+          "</b><br />" +
+          (tampil
+            ? ""
+            : "7 hari sebelumnya: <b>" + (lalu || 0) + "</b><br />") +
+          'Status: <b style="color:' +
+          st.warna +
+          '">' +
+          st.teks +
+          "</b><br />" +
+          '<span style="color:#6b7280">' +
+          l.id +
+          " · " +
+          l.lat.toFixed(4) +
+          ", " +
+          l.lng.toFixed(4) +
+          "</span>" +
+          "</div>" +
+          "</div>";
+        marker.bindPopup(html);
+        marker.bindTooltip(l.nama, { direction: "top", offset: [0, -14] });
+        cluster.addLayer(marker);
+      });
+      map.addLayer(cluster);
+
+      const bounds = L.latLngBounds(
+        LOKASI.map(function (l) {
+          return [l.lat, l.lng];
+        }),
+      );
+      map.fitBounds(bounds.pad(0.25), { animate: false });
+
+      L.rectangle(
+        [
+          [-7.84, 110.33],
+          [-7.76, 110.42],
+        ],
+        {
+          color: "#94a3b8",
+          weight: 1,
+          dashArray: "4 4",
+          fill: false,
+        },
+      )
+        .addTo(map)
+        .bindTooltip("Bounding box Kota Yogyakarta");
+    </script>
+  </body>
 </html>

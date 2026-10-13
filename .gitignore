@@ -1,0 +1,26 @@
+# Dependensi
+node_modules/
+bun.lockb
+
+# Build
+dist/
+build/
+
+# Environment 
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+*.db-journal
+*.sqlite
+
+# Log & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
