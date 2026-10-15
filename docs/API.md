@@ -39,19 +39,45 @@ per hari; disimpan sebagai hash, tanpa identitas).
 
 Body:
 
+- `kondisi` (opsional): `"membaik"` | `"stabil"` | `"memburuk"`.
+- `suhu_c` (opsional): angka 30–45.
+- `durasi_per_gejala` (opsional): durasi harian per kode gejala. Kalau tidak diisi,
+  dipakai `durasi_hari` untuk semua gejala.
+- `kelompok_rentan` (opsional): `true` untuk anak, lansia, atau ibu hamil.
+- `kondisi`, `suhu_c`, `durasi_per_gejala`, dan `kelompok_rentan` hanya dipakai
+  untuk menghitung triase. Keempatnya **tidak disimpan** ke database.
+
+Body:
+
 ```
-{ "lokasi_id": "kec-3471003", "gejala": ["batuk", "demam"], "durasi_hari": 2 }
+   { "lokasi_id": "kec-3471003", "gejala": ["batuk", "demam"],
+     "durasi_hari": 8, "durasi_per_gejala": { "batuk": 8, "demam": 1 },
+     "kondisi": "stabil", "suhu_c": 38.5, "kelompok_rentan": false }
 ```
 
 Respons:
 
 ```
-200 → { "ok": true,
-        "triase": { "kategori": 2, "pesan": "...", "saran": ["Istirahat", "Pakai masker"] } }
+200 → { "ok": true, "triase": { "kategori": 2, "pesan": "...",
+           "saran": ["Istirahat", "Pakai masker"],
+           "catatan": "Ini cuma panduan awal, bukan hasil pemeriksaan dokter." } }
 
 429 → { "ok": false, "error": "SUDAH_LAPOR_HARI_INI" }
 400 → { "ok": false, "error": "DATA_TIDAK_VALID" }
 ```
+
+Aturan triase (diperiksa berurutan, yang pertama cocok dipakai):
+
+| # | Kondisi | Hari | Kode |
+|---|---|---|---|
+| 1 | Sesak napas berat, nyeri dada, bibir/kuku kebiruan, batuk darah, sulit bicara, kesadaran menurun | Kapan saja | 1 |
+| 2 | Sesak napas ringan–sedang | Kapan saja | 2 |
+| 3 | Demam tinggi (>38°C) | ≥3 hari | 2 |
+| 4 | Batuk atau demam, belum membaik | ≥4 hari | 2 |
+| 5 | Kelompok rentan + batuk, demam, pilek, atau sakit tenggorokan | — | 2 |
+| 6 | Selain di atas | — | 3 |
+
+Kode kategori: `1` gawat darurat, `2` perlu pemeriksaan, `3` ringan.
 
 Kode kategori triase: `1` gawat darurat, `2` perlu pemeriksaan, `3` ringan.
 

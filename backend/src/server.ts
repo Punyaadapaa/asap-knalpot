@@ -93,9 +93,15 @@ function cekToken(req: Request): boolean {
 async function lapor(req: Request): Promise<Response> {
   const deviceId = req.headers.get("X-Device-Id");
   // Bad JSON becomes an empty object, so validation below rejects it
-  const { lokasi_id, gejala, durasi_hari } = ((await req
-    .json()
-    .catch(() => null)) ?? {}) as Partial<LaporRequest>;
+  const {
+    lokasi_id,
+    gejala,
+    durasi_hari,
+    kondisi,
+    suhu_c,
+    durasi_per_gejala,
+    kelompok_rentan,
+  } = ((await req.json().catch(() => null)) ?? {}) as Partial<LaporRequest>;
   const kodeValid = (
     db.query("SELECT kode FROM gejala WHERE aktif = 1").all() as {
       kode: string;
@@ -105,6 +111,29 @@ async function lapor(req: Request): Promise<Response> {
     .query("SELECT 1 FROM kecamatan WHERE id = ?")
     .get(lokasi_id ?? "");
 
+  if (
+    kondisi !== undefined &&
+    !["membaik", "stabil", "memburuk"].includes(kondisi)
+  )
+    return json({ ok: false, error: "DATA_TIDAK_VALID" }, 400);
+  if (
+    suhu_c !== undefined &&
+    (!Number.isFinite(suhu_c) || suhu_c < 30 || suhu_c > 45)
+  )
+    return json({ ok: false, error: "DATA_TIDAK_VALID" }, 400);
+  if (kelompok_rentan !== undefined && typeof kelompok_rentan !== "boolean")
+    return json({ ok: false, error: "DATA_TIDAK_VALID" }, 400);
+  if (durasi_per_gejala !== undefined) {
+    const entri = Object.entries(durasi_per_gejala);
+    const salah =
+      typeof durasi_per_gejala !== "object" ||
+      durasi_per_gejala === null ||
+      entri.some(
+        ([k, v]) =>
+          !kodeValid.includes(k) || !Number.isInteger(v) || v < 1 || v > 30,
+      );
+    if (salah) return json({ ok: false, error: "DATA_TIDAK_VALID" }, 400);
+  }
   // Reject anything not from the allowed lists or outside the rules
   if (
     !deviceId ||
@@ -122,7 +151,14 @@ async function lapor(req: Request): Promise<Response> {
 
   // Store a hash of the device ID, never the raw ID
   const hash = new Bun.CryptoHasher("sha256").update(deviceId).digest("hex");
-  const triase = hitungTriase(gejala, durasi_hari);
+  const triase = hitungTriase({
+    gejala,
+    durasi_hari,
+    kondisi,
+    suhu_c,
+    durasi_per_gejala,
+    kelompok_rentan,
+  });
 
   try {
     db.query(

@@ -6,9 +6,12 @@ import type { Lokasi } from "../../shared/types";
 // [code, label] pairs. Labels are not yet checked by medical staff.
 const GEJALA: [string, string][] = [
   ["batuk", "Batuk"],
-  ["sesak", "Sesak napas"],
+  ["sesak", "Sesak napas (ringan–sedang)"],
+  ["sesak_berat", "Sesak napas berat"],
   ["demam", "Demam"],
   ["pilek", "Pilek / hidung tersumbat"],
+  ["sakit_tenggorokan", "Sakit / perih tenggorokan"],
+  ["mata_perih", "Mata perih / berair"],
   ["nyeri_dada", "Nyeri dada"],
   ["bibir_membiru", "Bibir/kuku membiru"],
   ["batuk_darah", "Batuk darah"],
