@@ -24,6 +24,8 @@ import { LocationCard } from '../components/LocationCard';
 import { AQICard } from '../components/AQICard';
 import { CommunitySignalCard } from '../components/CommunitySignalCard';
 import { TrendChart } from '../components/TrendChart';
+import { InfoModal } from '../components/InfoModal';
+import { formatPersen } from '../format';
 
 interface HomeProps {
     currentLocation: LocationItem;
@@ -91,23 +93,23 @@ export const Home: React.FC<HomeProps> = ({
         return (
             <div className="space-y-8 pb-16 animate-in fade-in duration-150">
                 {/* ── Top Hero / Welcome Banner ── */}
-                <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white rounded-3xl p-8 lg:p-10 shadow-lg border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-                    <div className="space-y-3 max-w-3xl">
-                        <div className="inline-flex items-center space-x-2.5 bg-teal-500/20 text-teal-300 text-xs font-black px-4 py-1.5 rounded-full border border-teal-500/30 uppercase tracking-widest">
-                            <span className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse" />
-                            <span>KOTA YOGYAKARTA · REAL-TIME COMMUNITY HEALTH & AIR MONITOR</span>
+                <div className="bg-slate-900 text-white rounded-2xl p-7 lg:p-8 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="space-y-3 max-w-2xl">
+                        <div className="inline-flex items-center gap-2 text-teal-300 text-xs font-bold uppercase tracking-wider">
+                            <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                            <span>Kota Yogyakarta</span>
                         </div>
-                        <h1 className="text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                        <h1 className="text-2xl lg:text-3xl font-black tracking-tight leading-tight">
                             Pantauan Kualitas Udara & Sinyal Gejala Pernapasan
                         </h1>
-                        <p className="text-base lg:text-lg text-slate-200 leading-relaxed font-normal">
-                            Sistem deteksi dini ISPA, influenza, dan paparan polusi udara berbasis sinyal laporan warga serta stasiun pemantauan lingkungan di 14 kecamatan.
+                        <p className="text-sm lg:text-base text-slate-300 leading-relaxed">
+                            Deteksi dini gejala pernapasan dan paparan polusi dari laporan warga di 14 kecamatan.
                         </p>
                     </div>
 
                     {/* Wilayah Aktif Quick Selector */}
                     <div className="relative shrink-0 w-full md:w-auto">
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 min-w-[280px] text-left shadow-lg">
+                        <div className="text-left border-t border-white/15 pt-5 md:border-t-0 md:border-l md:pl-6 md:min-w-[260px]">
                             <span className="text-xs font-black text-teal-300 uppercase tracking-wider block">
                                 Wilayah Aktif Terpilih
                             </span>
@@ -170,7 +172,7 @@ export const Home: React.FC<HomeProps> = ({
                 {/* ── Top 4 Key Metric Cards (Row across the desktop width) ── */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Card 1: Kualitas Udara AQI */}
-                    <div className="bg-white rounded-3xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-2xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-extrabold text-slate-600 uppercase tracking-wider flex items-center space-x-2">
                                 <Wind size={20} className="text-teal-600" />
@@ -211,13 +213,29 @@ export const Home: React.FC<HomeProps> = ({
                             </div>
                         </div>
 
-                        <p className="text-xs text-slate-500 pt-3 border-t border-slate-100 font-medium">
-                            Stasiun Sensor: <strong className="text-slate-800">{currentLocation.aqi_source}</strong>
-                        </p>
+                        <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                            <p className="text-xs text-slate-500 font-medium">
+                                Stasiun Sensor: <strong className="text-slate-800">{currentLocation.aqi_source}</strong>
+                            </p>
+                            <InfoModal title="Tentang Data Kualitas Udara">
+                                <p>
+                                    Data kualitas udara (AQI) ditampilkan secara transparan untuk memberikan
+                                    konteks lingkungan di sekitarmu.
+                                </p>
+                                <p>
+                                    Angka AQI bertujuan memberikan kesadaran perlindungan diri seperti
+                                    penggunaan masker atau pembatasan aktivitas fisik berat di luar ruangan.
+                                </p>
+                                <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs">
+                                    <strong>Skala kota:</strong> angka ini berasal dari stasiun pemantau BMKG
+                                    untuk wilayah Kota Yogyakarta, jadi nilainya sama di setiap kecamatan.
+                                </div>
+                            </InfoModal>
+                        </div>
                     </div>
 
                     {/* Card 2: Sinyal Gejala Warga (7 Hari) */}
-                    <div className="bg-white rounded-3xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-2xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-extrabold text-slate-600 uppercase tracking-wider flex items-center space-x-2">
                                 <Activity size={20} className="text-teal-600" />
@@ -262,7 +280,7 @@ export const Home: React.FC<HomeProps> = ({
                     </div>
 
                     {/* Card 3: Ruang Terbuka Hijau (RTH) */}
-                    <div className="bg-white rounded-3xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-2xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-extrabold text-slate-600 uppercase tracking-wider flex items-center space-x-2">
                                 <Trees size={20} className="text-emerald-600" />
@@ -275,7 +293,7 @@ export const Home: React.FC<HomeProps> = ({
 
                         <div className="flex items-baseline space-x-3 pt-1">
                             <span className="text-5xl lg:text-6xl font-black text-emerald-800 tracking-tight">
-                                {currentLocation.rth_percentage}%
+                                {formatPersen(currentLocation.rth_percentage)}
                             </span>
                             <span className="text-sm font-bold text-slate-500">Cakupan Wilayah</span>
                         </div>
@@ -290,17 +308,33 @@ export const Home: React.FC<HomeProps> = ({
                             </div>
                             <div className="flex justify-between text-xs text-slate-500 font-bold">
                                 <span>Target Minimal Kota: 20%</span>
-                                <span>{currentLocation.rth_percentage}% Tercapai</span>
+                                <span>{formatPersen(currentLocation.rth_percentage)} Tercapai</span>
                             </div>
                         </div>
 
-                        <p className="text-xs text-slate-500 pt-3 border-t border-slate-100 font-medium">
-                            Mereduksi konsentrasi debu & asap knalpot
-                        </p>
+                        <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                            <p className="text-xs text-slate-500 font-medium">
+                                Mereduksi konsentrasi debu &amp; asap knalpot
+                            </p>
+                            <InfoModal title="Tentang Ruang Terbuka Hijau (RTH)">
+                                <p>
+                                    Ruang Terbuka Hijau (RTH) adalah persentase wilayah yang masih berupa
+                                    taman, kebun, sawah, atau area hijau lain.
+                                </p>
+                                <p>
+                                    Makin tinggi angkanya, makin baik wilayah itu menyerap debu dan asap
+                                    knalpot sehingga udara sekitarnya lebih sehat.
+                                </p>
+                                <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs">
+                                    <strong>Skala kota:</strong> angka ini dihitung untuk seluruh Kota
+                                    Yogyakarta (target minimal 20%), jadi nilainya sama di setiap kecamatan.
+                                </div>
+                            </InfoModal>
+                        </div>
                     </div>
 
                     {/* Card 4: Status Peringatan Wilayah */}
-                    <div className="bg-white rounded-3xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow flex flex-col justify-between">
+                    <div className="bg-white rounded-2xl p-7 lg:p-8 border border-slate-200 shadow-xs space-y-4 hover:shadow-md transition-shadow flex flex-col justify-between">
                         <div>
                             <div className="flex items-center justify-between mb-3">
                                 <span className="text-sm font-extrabold text-slate-600 uppercase tracking-wider flex items-center space-x-2">
@@ -332,15 +366,15 @@ export const Home: React.FC<HomeProps> = ({
                     {/* ── Left Column: 8 Cols (Trend Chart + Recommendations + Neighborhood Table) ── */}
                     <div className="lg:col-span-8 space-y-8">
                         {/* 1. Grafik Tren Harian Sinyal Gejala */}
-                        <div className="bg-white rounded-3xl p-8 lg:p-9 border border-slate-200 shadow-xs space-y-6">
+                        <div className="bg-white rounded-2xl p-8 lg:p-9 border border-slate-200 shadow-xs space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                                 <div>
                                     <h3 className="text-2xl font-black text-slate-900 flex items-center space-x-2.5">
-                                        <span>📊</span>
+                                        
                                         <span>Tren Laporan Gejala Pernapasan — {currentLocation.nama}</span>
                                     </h3>
                                     <p className="text-sm text-slate-500 mt-1 font-medium">
-                                        Data harian 7 hari terakhir agregat laporan batuk, demam, pilek, dan keluhan pernapasan warga.
+                                        Laporan harian 7 hari terakhir.
                                     </p>
                                 </div>
                                 <button
@@ -363,7 +397,7 @@ export const Home: React.FC<HomeProps> = ({
                         </div>
 
                         {/* 2. Panduan Perlindungan & Kesehatan Warga Terpadu */}
-                        <div className="bg-white rounded-3xl p-8 lg:p-9 border border-slate-200 shadow-xs space-y-6">
+                        <div className="bg-white rounded-2xl p-8 lg:p-9 border border-slate-200 shadow-xs space-y-6">
                             <div className="flex items-center space-x-3.5">
                                 <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-black shrink-0">
                                     <Shield size={26} />
@@ -378,41 +412,41 @@ export const Home: React.FC<HomeProps> = ({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
-                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2.5">
-                                    <div className="flex items-center space-x-2 text-slate-900">
-                                        <span className="text-xl">😷</span>
-                                        <span className="text-base font-black">Warga Umum</span>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                                <div className="space-y-2.5 border-t border-slate-200 pt-4">
+                                    <div className="flex items-center gap-2 text-slate-900">
+                                        <Shield size={18} className="text-slate-500 shrink-0" />
+                                        <span className="text-base font-bold">Warga Umum</span>
                                     </div>
-                                    <p className="text-sm text-slate-700 leading-relaxed font-normal">
-                                        Gunakan masker medis atau masker KN95 saat berkendara di jalan protokol. Cukupi minum air putih 2 liter per hari untuk menjaga kelembapan mukosa pernapasan.
+                                    <p className="text-sm text-slate-600 leading-relaxed">
+                                        Gunakan masker medis atau KN95 saat berkendara di jalan protokol. Minum air putih 2 liter per hari untuk menjaga kelembapan saluran napas.
                                     </p>
                                 </div>
 
-                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2.5">
-                                    <div className="flex items-center space-x-2 text-slate-900">
-                                        <span className="text-xl">👶</span>
-                                        <span className="text-base font-black">Kelompok Rentan</span>
+                                <div className="space-y-2.5 border-t border-slate-200 pt-4">
+                                    <div className="flex items-center gap-2 text-slate-900">
+                                        <AlertTriangle size={18} className="text-slate-500 shrink-0" />
+                                        <span className="text-base font-bold">Kelompok Rentan</span>
                                     </div>
-                                    <p className="text-sm text-slate-700 leading-relaxed font-normal">
-                                        Anak balita, lansia, dan penderita asma disarankan membatasi aktivitas fisik di luar ruangan saat indeks AQI sedang tidak sehat dan ventilasi ruangan tertutup.
+                                    <p className="text-sm text-slate-600 leading-relaxed">
+                                        Balita, lansia, dan penderita asma sebaiknya membatasi aktivitas di luar ruangan saat kualitas udara memburuk.
                                     </p>
                                 </div>
 
-                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2.5">
-                                    <div className="flex items-center space-x-2 text-slate-900">
-                                        <span className="text-xl">🩺</span>
-                                        <span className="text-base font-black">Bila Merasa Bergejala</span>
+                                <div className="space-y-2.5 border-t border-slate-200 pt-4">
+                                    <div className="flex items-center gap-2 text-slate-900">
+                                        <PlusCircle size={18} className="text-slate-500 shrink-0" />
+                                        <span className="text-base font-bold">Bila Merasa Bergejala</span>
                                     </div>
-                                    <p className="text-sm text-slate-700 leading-relaxed font-normal">
-                                        Gunakan form lapor anonim untuk mendapatkan arahan triase mandiri instan, istirahat cukup di rumah, dan segera ke faskes bila sesak berlanjut.
+                                    <p className="text-sm text-slate-600 leading-relaxed">
+                                        Lapor lewat form anonim untuk mendapat arahan triase, istirahat cukup, dan segera ke faskes bila sesak berlanjut.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         {/* 3. Kecamatan Sekitar di Kota Yogyakarta (Table / Overview) */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xs space-y-5">
+                        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-xs space-y-5">
                             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                                 <div>
                                     <h3 className="text-base font-black text-slate-900 uppercase tracking-wider">
@@ -432,7 +466,7 @@ export const Home: React.FC<HomeProps> = ({
                                     <div
                                         key={loc.id}
                                         onClick={() => onSelectLocation(loc)}
-                                        className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-teal-50/70 hover:border-teal-300 transition-all cursor-pointer space-y-2.5"
+                                        className="p-4 border-t border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer space-y-2.5"
                                     >
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm font-black text-slate-900">
@@ -465,7 +499,7 @@ export const Home: React.FC<HomeProps> = ({
                     {/* ── Right Column: 4 Cols (Hero Report CTA + Faskes Info + Tips) ── */}
                     <div className="lg:col-span-4 space-y-8">
                         {/* 1. Hero Report Action Card */}
-                        <div className="bg-gradient-to-br from-teal-700 via-teal-800 to-teal-950 text-white rounded-3xl p-8 lg:p-9 shadow-xl space-y-6">
+                        <div className="bg-teal-800 text-white rounded-2xl p-8 lg:p-9 space-y-6">
                             <div className="flex items-center space-x-2.5 text-teal-200 text-xs font-black uppercase tracking-wider">
                                 <Sparkles size={18} className="text-teal-300" />
                                 <span>Partisipasi Warga Anonim</span>
@@ -476,7 +510,7 @@ export const Home: React.FC<HomeProps> = ({
                                     Sedang Mengalami Gejala Pernapasan?
                                 </h3>
                                 <p className="text-sm lg:text-base text-teal-100 mt-3 leading-relaxed font-normal">
-                                    Bantu deteksi dini lonjakan influenza & dampak polusi asap knalpot di wilayahmu dengan melaporkan gejala secara anonim.
+                                    Bantu deteksi dini gejala pernapasan dan dampak polusi di wilayahmu lewat laporan anonim.
                                 </p>
                             </div>
 
@@ -501,7 +535,7 @@ export const Home: React.FC<HomeProps> = ({
                         </div>
 
                         {/* 2. Fasilitas Kesehatan & Kontak Darurat */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xs space-y-5">
+                        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-xs space-y-5">
                             <div className="flex items-center space-x-2.5 text-sm font-black text-slate-800 uppercase tracking-wider">
                                 <Hospital size={20} className="text-teal-600" />
                                 <span>Faskes & Kontak Darurat</span>
@@ -528,7 +562,7 @@ export const Home: React.FC<HomeProps> = ({
                                 </a>
                             </div>
 
-                            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-sm">
+                            <div className="py-5 border-y border-slate-200 space-y-2 text-sm">
                                 <span className="font-black text-slate-900 text-base block">
                                     Puskesmas {currentLocation.nama}
                                 </span>
@@ -546,17 +580,17 @@ export const Home: React.FC<HomeProps> = ({
                         </div>
 
                         {/* 3. Edukasi: Influenza vs Polusi Knalpot */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xs space-y-4">
+                        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-xs space-y-4">
                             <div className="flex items-center space-x-2 text-slate-900">
-                                <span className="text-xl">💡</span>
+                                
                                 <h3 className="text-base font-black">Kenali Perbedaan Gejala</h3>
                             </div>
                             <p className="text-xs text-slate-500 font-medium">
-                                Panduan membedakan iritasi saluran pernapasan akibat asap knalpot vs influenza
+                                Gejala akibat polusi knalpot vs infeksi flu
                             </p>
 
                             <div className="space-y-3 pt-1">
-                                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 space-y-1">
+                                <div className="space-y-1 border-t-2 border-amber-300 pt-3">
                                     <span className="text-xs font-black text-amber-900 uppercase tracking-wide block">
                                         Akibat Asap & Polusi
                                     </span>
@@ -565,7 +599,7 @@ export const Home: React.FC<HomeProps> = ({
                                     </p>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200/80 space-y-1">
+                                <div className="space-y-1 border-t-2 border-blue-300 pt-3">
                                     <span className="text-xs font-black text-blue-900 uppercase tracking-wide block">
                                         Akibat Infeksi Flu / ISPA
                                     </span>
@@ -650,7 +684,7 @@ export const Home: React.FC<HomeProps> = ({
                         className="w-full h-14 bg-teal-700 hover:bg-teal-800 active:scale-[0.99] text-white rounded-2xl font-black text-base shadow-lg shadow-teal-700/25 flex items-center justify-center space-x-2.5 transition-all cursor-pointer"
                     >
                         <PlusCircle size={22} className="text-teal-200" />
-                        <span>📝 Laporkan Gejala</span>
+                        <span>Laporkan Gejala</span>
                     </button>
                     <div className="flex items-center justify-center space-x-1.5 mt-2 text-[11px] text-slate-400">
                         <Shield size={12} className="text-teal-600" />

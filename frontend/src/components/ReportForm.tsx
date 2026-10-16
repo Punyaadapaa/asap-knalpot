@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Lock, MapPin, Clock, Sparkles } fr
 import { LocationItem, SymptomItem, SubmitReportResponse } from '../types';
 import { SymptomCard } from './SymptomCard';
 import { submitLapor } from '../api';
+import { kecamatanTerdekat } from '../geo';
 
 interface ReportFormProps {
     locations: LocationItem[];
@@ -21,12 +22,18 @@ export const ReportForm: React.FC<ReportFormProps> = ({
 }) => {
     const [step, setStep] = useState<1 | 2 | 3>(1);
     const [selectedLocationId, setSelectedLocationId] = useState<string>(
-        defaultLocationId || locations[0]?.id || 'gondokusuman'
+        defaultLocationId || locations[0]?.id || ''
     );
     const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
     const [durationDays, setDurationDays] = useState<number>(1);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isLocating, setIsLocating] = useState<boolean>(false);
+    const [detectedLocationId, setDetectedLocationId] = useState<string | null>(null);
+    const [locationHint, setLocationHint] = useState<{
+        tone: 'success' | 'error';
+        text: string;
+    } | null>(null);
 
     const toggleSymptom = (id: string) => {
         setSelectedSymptoms((prev) =>
@@ -34,9 +41,65 @@ export const ReportForm: React.FC<ReportFormProps> = ({
         );
     };
 
+    // Deteksi lokasi asli lewat peramban, lalu petakan ke kecamatan terdekat
+    // dari daftar yang sudah dimuat. Wilayah di luar Kota Yogyakarta (mis.
+    // Sleman) tetap dipetakan ke kecamatan terdekat, tanpa peringatan.
     const handleUseMyLocation = () => {
-        // Quick select Gondokusuman / first location with visual feedback
-        setSelectedLocationId('gondokusuman');
+        if (isLocating) return;
+
+        if (locations.length === 0) {
+            setLocationHint({ tone: 'error', text: 'Daftar kecamatan belum termuat.' });
+            return;
+        }
+        if (!('geolocation' in navigator)) {
+            setLocationHint({
+                tone: 'error',
+                text: 'Peramban ini tidak mendukung deteksi lokasi. Silakan pilih kecamatan manual.',
+            });
+            return;
+        }
+
+        setIsLocating(true);
+        setLocationHint(null);
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const hasil = kecamatanTerdekat(
+                    locations,
+                    pos.coords.latitude,
+                    pos.coords.longitude
+                );
+
+                if (!hasil) {
+                    setLocationHint({
+                        tone: 'error',
+                        text: 'Kecamatan terdekat tidak dapat ditentukan. Silakan pilih kecamatan manual.',
+                    });
+                } else {
+                    setSelectedLocationId(hasil.location.id);
+                    setDetectedLocationId(hasil.location.id);
+                    setLocationHint({
+                        tone: 'success',
+                        text:
+                            hasil.jarakKm <= 5
+                                ? `Terdeteksi ${hasil.location.nama} (±${hasil.jarakKm.toFixed(1)} km dari pusat kecamatan).`
+                                : `Wilayah terdekat: ${hasil.location.nama}.`,
+                    });
+                }
+                setIsLocating(false);
+            },
+            (err) => {
+                setLocationHint({
+                    tone: 'error',
+                    text:
+                        err.code === err.PERMISSION_DENIED
+                            ? 'Izin lokasi ditolak. Silakan pilih kecamatan manual.'
+                            : 'Lokasi tidak dapat dideteksi. Silakan pilih kecamatan manual.',
+                });
+                setIsLocating(false);
+            },
+            { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+        );
     };
 
     const handleSubmit = async () => {
@@ -86,7 +149,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
     const selectedLocation = locations.find((l) => l.id === selectedLocationId) || locations[0];
 
     return (
-        <div className="bg-white rounded-3xl p-5 md:p-7 border border-slate-200/90 shadow-sm transition-all max-w-xl md:max-w-2xl mx-auto">
+        <div className="bg-white rounded-2xl p-5 md:p-7 border border-slate-200/90 shadow-sm transition-all max-w-xl md:max-w-2xl mx-auto">
             {/* Header with Back button and Title */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
                 <button
@@ -142,25 +205,51 @@ export const ReportForm: React.FC<ReportFormProps> = ({
                         </label>
                         <select
                             value={selectedLocationId}
-                            onChange={(e) => setSelectedLocationId(e.target.value)}
+                            onChange={(e) => {
+                                setSelectedLocationId(e.target.value);
+                                setDetectedLocationId(null);
+                                setLocationHint(null);
+                            }}
                             className="w-full h-12 px-3.5 rounded-2xl border border-slate-300 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600 text-sm"
                         >
                             {locations.map((loc) => (
                                 <option key={loc.id} value={loc.id}>
-                                    📍 {loc.nama}, {loc.kota}
+                                    {loc.nama}, {loc.kota}
                                 </option>
                             ))}
                         </select>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleUseMyLocation}
-                        className="w-full py-2.5 px-3 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
-                    >
-                        <MapPin size={15} />
-                        <span>Gunakan Lokasi Saat Ini (Gondokusuman)</span>
-                    </button>
+                    <div className="space-y-1.5">
+                        <button
+                            type="button"
+                            onClick={handleUseMyLocation}
+                            disabled={isLocating}
+                            className="w-full py-2.5 px-3 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-default"
+                        >
+                            <MapPin size={15} />
+                            <span>
+                                {isLocating
+                                    ? 'Mendeteksi lokasi…'
+                                    : detectedLocationId
+                                      ? `Gunakan Lokasi Saat Ini (${selectedLocation?.nama})`
+                                      : 'Gunakan Lokasi Saat Ini'}
+                            </span>
+                        </button>
+                        {locationHint && (
+                            <p
+                                className={`text-[11px] leading-relaxed ${
+                                    locationHint.tone === 'success'
+                                        ? 'text-teal-700'
+                                        : locationHint.tone === 'error'
+                                          ? 'text-rose-600'
+                                          : 'text-slate-500'
+                                }`}
+                            >
+                                {locationHint.text}
+                            </p>
+                        )}
+                    </div>
 
                     <button
                         type="button"
@@ -241,7 +330,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
                         </p>
                     </div>
 
-                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
+                    <div className="border-t border-slate-200 pt-4 space-y-3">
                         <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-2 text-xs text-slate-500">
                                 <MapPin size={15} className="text-teal-600" />
@@ -252,7 +341,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
                             </span>
                         </div>
 
-                        <div className="border-t border-slate-200/60 pt-2">
+                        <div className="pt-1">
                             <div className="flex items-center space-x-2 text-xs text-slate-500 mb-2">
                                 <span className="font-semibold">Gejala yang Dipilih</span>
                             </div>
@@ -262,9 +351,9 @@ export const ReportForm: React.FC<ReportFormProps> = ({
                                     return (
                                         <span
                                             key={id}
-                                            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 shadow-xs"
+                                            className="inline-flex items-center px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 shadow-xs"
                                         >
-                                            <span>{s?.icon}</span>
+                                            
                                             <span>{s?.nama || id}</span>
                                         </span>
                                     );

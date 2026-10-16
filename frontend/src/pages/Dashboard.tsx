@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { formatPersen } from '../format';
 import {
     Activity,
     TrendingUp,
@@ -79,7 +80,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 </span>
                             </div>
                             <p className="text-[11px] text-slate-400">
-                                Sistem Sinyal Komunitas & Pemantauan Kesehatan Wilayah
+                                
                             </p>
                         </div>
                     </div>
@@ -112,7 +113,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             Kondisi Wilayah & Sinyal Komunitas
                         </h2>
                         <p className="text-xs text-slate-500 mt-0.5">
-                            Data agregat 7 hari terakhir tingkat kecamatan di Kota Yogyakarta.
+                            Data agregat 7 hari terakhir per kecamatan.
                         </p>
                     </div>
 
@@ -224,7 +225,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     <span>Grafik Tren Laporan Harian (Agregat Kota)</span>
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-0.5">
-                                    Jumlah kumulatif laporan gejala pernapasan komunitas per hari
+                                    Jumlah laporan gejala per hari.
                                 </p>
                             </div>
                             <div className="mt-2 sm:mt-0 text-xs text-slate-400 font-medium">
@@ -252,7 +253,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     Daftar Status Kecamatan
                                 </h3>
                                 <p className="text-xs text-slate-500">
-                                    Evaluasi sinyal berdasarkan 3 kategori resmi: NORMAL, NAIK, DATA BELUM CUKUP
+                                    Status sinyal per kecamatan: NORMAL, NAIK, atau DATA BELUM CUKUP.
                                 </p>
                             </div>
 
@@ -392,7 +393,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                                                     <td className="py-3.5 px-4">
                                                         <span className="font-bold text-emerald-800">
-                                                            {loc.rth_percentage}%
+                                                            {formatPersen(loc.rth_percentage)}
                                                         </span>
                                                     </td>
 

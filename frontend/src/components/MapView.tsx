@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { formatPersen } from '../format';
 import {
     Wind,
     Trees,
@@ -163,7 +164,7 @@ export const MapView: React.FC<MapViewProps> = ({
             // Badge text or icon inside the pin
             let badgeText = '';
             if (activeLayer === 'gejala') {
-                badgeText = loc.privacy_hidden ? '🔒' : `${loc.total_reports_7d ?? '•'}`;
+                badgeText = loc.privacy_hidden ? '<3' : `${loc.total_reports_7d ?? '•'}`;
             } else if (activeLayer === 'aqi') {
                 badgeText = `${loc.aqi}`;
             } else {
@@ -251,7 +252,7 @@ export const MapView: React.FC<MapViewProps> = ({
                     </div>
                     <div>
                         <span class="text-slate-400 block font-medium">RTH</span>
-                        <strong class="text-emerald-700 font-bold">${loc.rth_percentage}%</strong>
+                        <strong class="text-emerald-700 font-bold">${formatPersen(loc.rth_percentage)}</strong>
                     </div>
                 </div>
 
@@ -371,7 +372,7 @@ export const MapView: React.FC<MapViewProps> = ({
 
             {/* Interactive Leaflet Map Container */}
             <div
-                className={`relative rounded-3xl overflow-hidden shadow-lg border border-slate-200/90 transition-all duration-300 ${
+                className={`relative rounded-2xl overflow-hidden shadow-lg border border-slate-200/90 transition-all duration-300 ${
                     isExpanded ? 'h-[500px]' : 'h-[360px]'
                 }`}
             >
@@ -389,7 +390,6 @@ export const MapView: React.FC<MapViewProps> = ({
                         }`}
                         title="Tampilan Peta Jalan"
                     >
-                        <span>🗺️</span>
                         <span>Jalan</span>
                     </button>
                     <button
@@ -401,7 +401,6 @@ export const MapView: React.FC<MapViewProps> = ({
                         }`}
                         title="Tampilan Citra Satelit"
                     >
-                        <span>🛰️</span>
                         <span>Satelit</span>
                     </button>
                 </div>
@@ -513,7 +512,7 @@ export const MapView: React.FC<MapViewProps> = ({
                                 Ruang Hijau
                             </span>
                             <span className="text-sm font-black text-emerald-700">
-                                {selectedLocation.rth_percentage}%
+                                {formatPersen(selectedLocation.rth_percentage)}
                             </span>
                         </div>
                     </div>

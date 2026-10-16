@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { LocationItem, SymptomItem, SubmitReportResponse, TriageResultData } from './types';
 import { fetchLokasi, fetchGejala } from './api';
+import { formatPersen } from './format';
+import { InfoModal } from './components/InfoModal';
 import { Home } from './pages/Home';
 import { Lapor } from './pages/Lapor';
 import { Triase } from './pages/Triase';
@@ -16,13 +18,11 @@ import {
     Map,
     UserCheck,
     Building2,
-    Activity,
-    Wind,
-    ChevronRight,
-    Leaf,
     Monitor,
     Smartphone,
     MapPin,
+    PanelLeftClose,
+    PanelLeftOpen,
 } from 'lucide-react';
 
 // ─── Sidebar Navigation (Desktop) ────────────────────────────────────────────
@@ -42,18 +42,18 @@ const SideNav: React.FC<SideNavProps> = ({
     currentLocation,
 }) => {
     const navItems = [
-        { id: 'home' as const, label: 'Beranda', icon: HomeIcon, desc: 'Pantauan & ringkasan wilayah' },
-        { id: 'lapor' as const, label: 'Lapor Gejala', icon: FileText, desc: 'Kirim keluhan warga anonim' },
-        { id: 'peta' as const, label: 'Peta Wilayah', icon: Map, desc: 'Persebaran 14 kecamatan' },
-        { id: 'saya' as const, label: 'Gejala Saya', icon: UserCheck, desc: 'Riwayat & triase mandiri' },
+        { id: 'home' as const, label: 'Beranda', icon: HomeIcon },
+        { id: 'lapor' as const, label: 'Lapor Gejala', icon: FileText },
+        { id: 'peta' as const, label: 'Peta Wilayah', icon: Map },
+        { id: 'saya' as const, label: 'Gejala Saya', icon: UserCheck },
     ];
 
     return (
-        <aside className="w-80 xl:w-[340px] shrink-0 flex flex-col h-screen sticky top-0 bg-white border-r border-slate-200 shadow-sm z-30 select-none">
+        <aside className="w-80 xl:w-[340px] shrink-0 flex flex-col h-screen sticky top-0 bg-white border-r border-slate-200 z-30 select-none overflow-y-auto">
             {/* Logo & Branding */}
-            <div className="p-7 border-b border-slate-100">
-                <div className="flex items-center space-x-4">
-                    <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-800 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-teal-600/30 shrink-0">
+            <div className="p-6 border-b border-slate-100">
+                <div className="flex items-center space-x-3.5">
+                    <div className="w-12 h-12 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-lg shrink-0">
                         IA
                     </div>
                     <div>
@@ -70,9 +70,9 @@ const SideNav: React.FC<SideNavProps> = ({
             </div>
 
             {/* Navigation Links */}
-            <nav className="flex-1 p-5 space-y-2 overflow-y-auto">
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest px-3 pt-1 pb-1">
-                    Menu Utama
+            <nav className="p-4 space-y-1">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 pt-1 pb-2">
+                    Menu
                 </p>
                 {navItems.map((item) => {
                     const Icon = item.icon;
@@ -81,105 +81,103 @@ const SideNav: React.FC<SideNavProps> = ({
                         <button
                             key={item.id}
                             onClick={() => onTabChange(item.id)}
-                            className={`w-full flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-left transition-all duration-150 cursor-pointer group ${
+                            aria-current={isActive ? 'page' : undefined}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
                                 isActive
-                                    ? 'bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-md shadow-teal-700/25'
-                                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'
+                                    ? 'bg-teal-700 text-white'
+                                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                             }`}
                         >
-                            <div
-                                className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                                    isActive
-                                        ? 'bg-white/20 text-white shadow-inner'
-                                        : 'bg-slate-100 text-slate-600 group-hover:bg-teal-50 group-hover:text-teal-700'
-                                }`}
-                            >
-                                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <span
-                                    className={`block text-lg font-black leading-tight ${
-                                        isActive ? 'text-white' : 'text-slate-800 group-hover:text-slate-900'
-                                    }`}
-                                >
-                                    {item.label}
-                                </span>
-                                <span
-                                    className={`block text-xs font-medium leading-tight mt-1 truncate ${
-                                        isActive ? 'text-teal-100' : 'text-slate-500'
-                                    }`}
-                                >
-                                    {item.desc}
-                                </span>
-                            </div>
-                            {isActive && (
-                                <ChevronRight size={18} className="text-white/80 shrink-0 font-bold" />
-                            )}
+                            <Icon size={18} className="shrink-0" />
+                            <span className="truncate">{item.label}</span>
                         </button>
                     );
                 })}
 
                 {/* Dashboard Pengelola link */}
-                <div className="pt-5 mt-4 border-t border-slate-100">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest px-3 pb-2">
+                <div className="pt-4 mt-3 border-t border-slate-100">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 pb-2">
                         Pengelola
                     </p>
                     <button
                         onClick={onSwitchToDashboard}
-                        className="w-full flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-left transition-all hover:bg-slate-100 cursor-pointer group"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 cursor-pointer"
                     >
-                        <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-700 group-hover:bg-indigo-100 flex items-center justify-center shrink-0 transition-colors">
-                            <Building2 size={24} strokeWidth={2} />
-                        </div>
-                        <div className="min-w-0">
-                            <span className="block text-base font-extrabold text-slate-800 group-hover:text-slate-900 leading-tight">
-                                Dashboard Puskesmas
-                            </span>
-                            <span className="block text-xs text-slate-500 font-medium leading-tight mt-1">
-                                Data surveilans & faskes
-                            </span>
-                        </div>
+                        <Building2 size={18} className="shrink-0" />
+                        <span className="truncate">Dashboard Puskesmas</span>
                     </button>
                 </div>
             </nav>
 
             {/* Quick Stats Footer in Sidebar */}
             {currentLocation && (
-                <div className="p-5 border-t border-slate-100 space-y-3 bg-slate-50/50">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-wider px-1">
-                        Wilayah Aktif Terpilih
+                <div className="mt-auto p-5 border-t border-slate-100 space-y-3">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        Wilayah Aktif
                     </p>
-                    <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs space-y-3">
-                        <div className="flex items-center space-x-2">
-                            <MapPin size={18} className="text-teal-600 shrink-0" />
-                            <span className="text-base font-black text-slate-900 truncate">{currentLocation.nama}</span>
-                            <span className="text-xs text-slate-500 font-bold">· DIY</span>
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <MapPin size={16} className="text-teal-700 shrink-0" />
+                            <span className="text-sm font-bold text-slate-900 truncate">{currentLocation.nama}</span>
+                            <span className="text-xs text-slate-500">DIY</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
-                                <Activity size={16} className="mx-auto mb-1 text-teal-600" />
-                                <span className="block text-base font-black text-slate-900">
+                        <div className="grid grid-cols-3 divide-x divide-slate-200 border-y border-slate-200 py-3 text-center">
+                            <div className="px-1">
+                                <span className="block text-lg font-black text-slate-900">
                                     {currentLocation.total_reports_7d ?? '<3'}
                                 </span>
-                                <span className="block text-xs font-bold text-slate-500">Laporan</span>
+                                <span className="text-xs font-medium text-slate-500 leading-tight min-h-8 flex items-center justify-center">
+                                    Laporan 7 hari
+                                </span>
                             </div>
-                            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
-                                <Wind size={16} className="mx-auto mb-1 text-amber-600" />
-                                <span className="block text-base font-black text-slate-900">
+                            <div className="px-1">
+                                <span className="block text-lg font-black text-slate-900">
                                     {currentLocation.aqi}
                                 </span>
-                                <span className="block text-xs font-bold text-slate-500">AQI</span>
-                            </div>
-                            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
-                                <Leaf size={16} className="mx-auto mb-1 text-emerald-600" />
-                                <span className="block text-base font-black text-emerald-700">
-                                    {currentLocation.rth_percentage}%
+                                <span className="text-xs font-medium text-slate-500 leading-tight min-h-8 flex items-center justify-center">
+                                    Kualitas udara
                                 </span>
-                                <span className="block text-xs font-bold text-slate-500">RTH</span>
+                            </div>
+                            <div className="px-1">
+                                <span className="block text-lg font-black text-slate-900">
+                                    {formatPersen(currentLocation.rth_percentage)}
+                                </span>
+                                <span className="text-xs font-medium text-slate-500 leading-tight min-h-8 flex items-center justify-center">
+                                    Ruang hijau
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex">
+                                <InfoModal title="Tentang Angka Wilayah Ini">
+                                    <p>
+                                        <strong className="text-slate-800">Laporan 7 hari</strong> = jumlah
+                                        warga yang melaporkan gejala pernapasan di kecamatan ini dalam 7
+                                        hari terakhir.
+                                    </p>
+                                    <p>
+                                        <strong className="text-slate-800">Kualitas Udara (AQI)</strong> =
+                                        indeks kualitas udara dari stasiun pemantau BMKG. 0–50 baik, 51–100
+                                        sedang, di atas 100 kurang sehat untuk penderita asma dan lansia.
+                                    </p>
+                                    <p>
+                                        <strong className="text-slate-800">Ruang Hijau (RTH)</strong> =
+                                        persentase wilayah yang masih berupa ruang terbuka hijau. Makin
+                                        tinggi, makin baik menyerap polusi.
+                                    </p>
+                                    <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs">
+                                        <strong>Catatan wilayah:</strong> angka kualitas udara dan ruang
+                                        hijau dihitung untuk seluruh Kota Yogyakarta, jadi nilainya sama di
+                                        setiap kecamatan. Hanya angka laporan yang khusus kecamatan ini.
+                                    </div>
+                                    <p className="text-xs text-slate-500">
+                                        Kalau jumlah laporan kurang dari 3, angkanya ditampilkan sebagai
+                                        &lt;3 demi melindungi privasi pelapor.
+                                    </p>
+                                </InfoModal>
                             </div>
                         </div>
                     </div>
-                </div>
             )}
         </aside>
     );
@@ -308,8 +306,9 @@ export const App: React.FC = () => {
     const [locations, setLocations] = useState<LocationItem[]>([]);
     const [symptoms, setSymptoms] = useState<SymptomItem[]>([]);
     const [currentLocation, setCurrentLocation] = useState<LocationItem | null>(null);
-    const [selectedLocationForDetail, setSelectedLocationForDetail] = useState<string>('gondokusuman');
+    const [selectedLocationForDetail, setSelectedLocationForDetail] = useState<string>('');
     const [lastReportResult, setLastReportResult] = useState<SubmitReportResponse['data'] | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -321,8 +320,10 @@ export const App: React.FC = () => {
             const [locsData, symsData] = await Promise.all([fetchLokasi(), fetchGejala()]);
             setLocations(locsData);
             setSymptoms(symsData);
-            const defaultLoc = locsData.find((l) => l.id === 'gondokusuman') || locsData[0] || null;
-            setCurrentLocation(defaultLoc);
+            // Wilayah awal sebelum pengguna memilih sendiri di beranda.
+            // (Dulu di sini dicari id "gondokusuman" yang tidak pernah ada di
+            // basis data, jadi selalu jatuh ke kecamatan pertama.)
+            setCurrentLocation(locsData[0] ?? null);
         } catch (err: any) {
             setError(err.message || 'Data belum dapat dimuat. Periksa koneksi internet.');
         } finally {
@@ -382,7 +383,7 @@ export const App: React.FC = () => {
     if (loading && locations.length === 0) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-                <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4 animate-pulse">
+                <div className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4 animate-pulse">
                     <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 rounded-xl bg-slate-200" />
                         <div className="space-y-1.5 flex-1">
@@ -406,7 +407,7 @@ export const App: React.FC = () => {
     if (error && locations.length === 0) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-                <div className="max-w-sm w-full bg-white rounded-3xl p-6 shadow-sm border border-slate-200 text-center space-y-3">
+                <div className="max-w-sm w-full bg-white rounded-2xl p-6 shadow-sm border border-slate-200 text-center space-y-3">
                     <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
                         <AlertCircle size={28} />
                     </div>
@@ -578,7 +579,7 @@ export const App: React.FC = () => {
                     {/* Mobile App Header */}
                     <header className="px-4 py-3 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
                         <div className="flex items-center space-x-2.5">
-                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-600 to-teal-800 text-white flex items-center justify-center font-black text-xs shadow-xs">
+                            <div className="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-xs">
                                 IA
                             </div>
                             <div>
@@ -625,34 +626,51 @@ export const App: React.FC = () => {
     // ── Desktop Mode Layout ─────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-slate-100/60 flex">
-            {/* ── Desktop Sidebar (SideNav) ── */}
-            <SideNav
-                currentTab={activeTab}
-                onTabChange={handleTabChange}
-                onSwitchToDashboard={() => setCurrentView('dashboard')}
-                locations={locations}
-                currentLocation={currentLocation}
-            />
+            {/* ── Desktop Sidebar (SideNav, collapsible) ── */}
+            <div
+                className={`shrink-0 h-screen sticky top-0 overflow-hidden transition-[width] duration-200 ease-out ${
+                    isSidebarOpen ? 'w-80 xl:w-[340px]' : 'w-0'
+                }`}
+            >
+                <SideNav
+                    currentTab={activeTab}
+                    onTabChange={handleTabChange}
+                    onSwitchToDashboard={() => setCurrentView('dashboard')}
+                    locations={locations}
+                    currentLocation={currentLocation}
+                />
+            </div>
 
             {/* ── Main Content Area ── */}
             <div className="flex-1 flex flex-col min-h-screen min-w-0">
                 {/* ── Top Header Bar (Desktop) ── */}
                 <header className="flex items-center justify-between px-10 py-5 bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
-                    <div>
-                        <div className="flex items-center space-x-3">
-                            <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                                {getPageTitle()}
-                            </h2>
-                            <span className="bg-teal-50 text-teal-800 text-xs font-black px-3 py-1 rounded-lg border border-teal-200">
-                                Warga
-                            </span>
+                    <div className="flex items-center gap-4 min-w-0">
+                        <button
+                            onClick={() => setIsSidebarOpen((v) => !v)}
+                            aria-label={isSidebarOpen ? 'Sembunyikan menu' : 'Tampilkan menu'}
+                            aria-expanded={isSidebarOpen}
+                            title={isSidebarOpen ? 'Sembunyikan menu' : 'Tampilkan menu'}
+                            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
+                        >
+                            {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
+                        </button>
+                        <div className="min-w-0">
+                            <div className="flex items-center space-x-3">
+                                <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                                    {getPageTitle()}
+                                </h2>
+                                <span className="bg-teal-50 text-teal-800 text-xs font-black px-3 py-1 rounded-lg border border-teal-200">
+                                    Warga
+                                </span>
+                            </div>
+                            <p className="text-sm font-semibold text-slate-500 mt-1">{getPageSubtitle()}</p>
                         </div>
-                        <p className="text-sm font-semibold text-slate-500 mt-1">{getPageSubtitle()}</p>
                     </div>
 
                     {/* Right side: View Mode Switcher + Location Badge + Action */}
                     <div className="flex items-center space-x-4">
-                        {/* 🖥️ Desktop / 📱 Mobile View Switcher */}
+                        {/* Desktop / Mobile View Switcher */}
                         <ViewModeSelector mode={displayMode} onChange={handleSetDisplayMode} />
 
                         {currentLocation && (
