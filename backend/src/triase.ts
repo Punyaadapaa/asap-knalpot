@@ -1,5 +1,5 @@
 // Triage rules: symptoms + duration + condition -> category 1, 2, or 3
-import type { Triase, Kondisi, DurasiPerGejala } from "../../shared/types";
+import type { InputTriase, Triase } from "../../shared/types";
 
 // Shown on every response (PRD 6.5). The app never names a disease.
 const CATATAN = "Ini cuma panduan awal, bukan hasil pemeriksaan dokter.";
@@ -60,14 +60,7 @@ const PESAN = {
   },
 } satisfies Record<string, Triase>;
 
-export type InputTriase = {
-  gejala: string[];
-  durasi_hari: number;
-  kondisi?: Kondisi;
-  suhu_c?: number;
-  durasi_per_gejala?: DurasiPerGejala;
-  kelompok_rentan?: boolean;
-};
+export type { InputTriase };
 
 export function hitungTriase(l: InputTriase): Triase {
   // Duration for one symptom, falling back to the single durasi_hari

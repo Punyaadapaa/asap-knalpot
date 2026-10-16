@@ -5,7 +5,11 @@ import path from "path";
 const dir = path.join(import.meta.dir, "../data");
 mkdirSync(dir, { recursive: true });
 
-export const db = new Database(path.join(dir, "database.db"), { create: true });
+// DB_PATH bisa diarahkan ke tempat lain (dipakai saat pengujian).
+const berkas = process.env.DB_PATH ?? path.join(dir, "database.db");
+mkdirSync(path.dirname(berkas), { recursive: true });
+
+export const db = new Database(berkas, { create: true });
 
 db.exec(`
    CREATE TABLE IF NOT EXISTS kecamatan (
@@ -34,9 +38,9 @@ db.exec(`
 
    CREATE INDEX IF NOT EXISTS laporan_kecamatan_waktu
      ON laporan(kecamatan_id, dibuat_pada);
-   `);
 
-// Frontend baru tidak mengirim id perangkat, jadi aturan "1 laporan per
-// perangkat per hari" tidak berlaku lagi. Hapus indeksnya kalau basis data
-// lama masih punya. Pembatas spam sekarang hanya hash IP.
-db.exec("DROP INDEX IF EXISTS laporan_device_harian;");
+   -- 1 laporan per perangkat per hari (PRD 6.1). Batas hari memakai WIB
+   -- (+7 jam), bukan UTC, supaya hari berganti saat tengah malam WIB.
+   CREATE UNIQUE INDEX IF NOT EXISTS laporan_device_harian
+     ON laporan(device_hash, date(dibuat_pada, '+7 hours'));
+   `);

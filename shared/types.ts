@@ -1,4 +1,48 @@
-// Lokasi
+// Tipe bersama backend (sekaligus acuan bentuk API untuk frontend).
+//
+// Bentuk respons: { status: "success", data } atau { status: "error", message }.
+// Frontend saat ini mendefinisikan tipenya sendiri di frontend/src/api.ts; file
+// ini adalah sumber tunggal untuk backend.
+
+// ---- Triase (internal: dipakai triase.ts & api.ts) ----
+
+export type KategoriTriase = 1 | 2 | 3; // 1 darurat, 2 perlu pemeriksaan, 3 ringan
+
+export interface Triase {
+  kategori: KategoriTriase;
+  pesan: string;
+  saran: string[];
+  catatan: string; // disclaimer wajib, ditampilkan di UI
+}
+
+export type Kondisi = "membaik" | "stabil" | "memburuk";
+
+// Durasi per gejala (hari). Kalau tidak ada, dipakai durasi_hari.
+export type DurasiPerGejala = Record<string, number>;
+
+export interface InputTriase {
+  gejala: string[];
+  durasi_hari: number;
+  kondisi?: Kondisi;
+  suhu_c?: number;
+  durasi_per_gejala?: DurasiPerGejala;
+  kelompok_rentan?: boolean; // anak, lansia, ibu hamil
+}
+
+// ---- Amplop respons ----
+
+export interface ApiSuccess<T> {
+  status: "success";
+  data: T;
+  message?: string;
+}
+
+export interface ApiError {
+  status: "error";
+  message: string;
+}
+
+// ---- Bentuk mentah data/lokasi.json (dipakai seed.ts) ----
 
 export interface Lokasi {
   id: string;
@@ -7,65 +51,47 @@ export interface Lokasi {
   lng: number;
 }
 
-// Gejala
+// ---- Lokasi (LocationItem) ----// Dipakai /api/lokasi, /api/peta (locations[]), /api/dashboard (kecamatan_list[]),
+// dan /api/lokasi/:id/tren.
 
-export interface Gejala {
-  kode: string;
-  label: string;
-}
-
-// Lapor
-
-export type KategoriTriase = 1 | 2 | 3; // 1 darurat, 2 perlu pemeriksaan, 3 ringan
-
-export interface Triase {
-  kategori: KategoriTriase;
-  pesan: string;
-  saran: string[];
-  catatan: string; // required disclaimer, shown in the UI
-}
-
-export type Kondisi = "membaik" | "stabil" | "memburuk";
-
-// Optional per-symptom duration in days. Falls back to durasi_hari when absent.
-export type DurasiPerGejala = Record<string, number>;
-
-export interface LaporRequest {
-  lokasi_id: string;
-  gejala: string[];
-  durasi_hari: number;
-  kondisi?: Kondisi; // optional: old clients still work
-  suhu_c?: number;
-  durasi_per_gejala?: DurasiPerGejala; // per-symptom days, overrides durasi_hari
-  kelompok_rentan?: boolean; // anak, lansia, ibu hamil
-}
-
-export interface LaporResponse {
-  ok: true;
-  triase: Triase;
-}
-
-export type LaporError =
-  | { ok: false; error: "SUDAH_LAPOR_HARI_INI" }
-  | { ok: false; error: "DATA_TIDAK_VALID" };
-
-// Peta
-
-export type StatusLokasi = "normal" | "naik" | "tersembunyi";
-
-export interface TitikPeta {
-  lokasi_id: string;
-  nama: string;
-  lat: number;
-  lng: number;
-  /** null jika < 3 laporan (disembunyikan) */
-  laporan_7hari: number | null;
-  status: StatusLokasi;
-}
-
-// Lingkungan (level kota, satu nilai)
-
+export type StatusSinyal = "normal" | "naik" | "data_belum_cukup";
 export type SumberAqi = "stasiun" | "model" | "contoh";
+
+export interface TitikTren {
+  date: string; // YYYY-MM-DD (WIB)
+  label: string; // mis. "Sab"
+  count: number;
+}
+
+export interface LocationItem {
+  id: string;
+  nama: string;
+  kota: string;
+  latitude: number;
+  longitude: number;
+  aqi: number;
+  aqi_category: string;
+  aqi_source: SumberAqi;
+  aqi_updated_at: string;
+  rth_percentage: number;
+  /** null kalau < 3 laporan (privasi) */
+  total_reports_7d: number | null;
+  previous_reports_7d: number;
+  change_percent: number;
+  status: StatusSinyal;
+  privacy_hidden: boolean;
+  daily_trend: TitikTren[];
+}
+
+export interface GejalaItem {
+  id: string;
+  nama: string;
+  icon: string;
+  is_emergency: boolean;
+  sort_order: number;
+}
+
+// ---- Lingkungan (data/lingkungan.json, level kota) ----
 
 export interface StasiunAqi {
   nama: string;
@@ -94,29 +120,4 @@ export interface Rth {
 export interface Lingkungan {
   aqi: Aqi;
   rth: Rth;
-}
-
-// Tren
-
-export interface TitikTren {
-  /** ISO 8601, format YYYY-MM-DD */
-  tanggal: string;
-  jumlah: number;
-}
-
-export interface TrenLokasi {
-  lokasi_id: string;
-  periode: TitikTren[];
-  perubahan_persen: number;
-}
-
-// Dashboard
-
-export interface BarisDashboard {
-  lokasi_id: string;
-  nama: string;
-  laporan_7hari: number;
-  laporan_7hari_sebelumnya: number;
-  perubahan_persen: number;
-  status: StatusLokasi;
 }
