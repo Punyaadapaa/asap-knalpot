@@ -1,4 +1,3 @@
-// HTTP server and all API endpoints (see docs/API.md)
 import path from "path";
 import { db } from "./db";
 import { seed } from "./seed";
@@ -14,7 +13,6 @@ import type {
 const DATA = path.join(import.meta.dir, "../../data");
 const HARI = 24 * 60 * 60 * 1000; // one day in milliseconds
 const WIB_OFFSET = 7 * 60 * 60 * 1000; // adjust to WIB midnight for day boundaries
-
 
 // CORS: the Vite dev server runs on a different port, so the browser needs
 // these headers. Override with CORS_ORIGIN when the port changes.
@@ -46,8 +44,6 @@ function hitungLaporan(kec: string, dari: string, sampai: string): number {
 }
 
 // Compare last 7 days with the 7 days before (PRD sections 6.2 and 6.3)
-// shortcut: if previous week is 0, percent change is 0 and status is never "naik".
-// Undecided in PRD section 11.
 function ringkas(kec: string) {
   const now = Date.now() + WIB_OFFSET;
   const cur = hitungLaporan(kec, iso(now - 7 * HARI), iso(now + 1));
@@ -61,7 +57,6 @@ function ringkas(kec: string) {
 }
 
 // Daily counts for the last 7 days (one entry per day, zero if no reports)
-// shortcut: days are now cut at WIB midnight using WIB_OFFSET.
 function tren(kec: string): TrenLokasi {
   const now = Date.now() + WIB_OFFSET;
   const rows = db
@@ -97,8 +92,7 @@ function dashboard(): BarisDashboard[] {
   });
 }
 
-// Check the Bearer token. If DASHBOARD_TOKEN is not set, nobody gets in (fail closed).
-// shortcut: plain string compare, not constant-time. Fine for a demo.
+// Check the Bearer token.
 function cekToken(req: Request): boolean {
   const t = process.env.DASHBOARD_TOKEN;
   return !!t && req.headers.get("Authorization") === `Bearer ${t}`;
@@ -107,7 +101,6 @@ function cekToken(req: Request): boolean {
 // POST /api/lapor: validate input, run triage, save the report
 async function lapor(req: Request): Promise<Response> {
   const deviceId = req.headers.get("X-Device-Id");
-  // Bad JSON becomes an empty object, so validation below rejects it
   const {
     lokasi_id,
     gejala,
@@ -149,7 +142,7 @@ async function lapor(req: Request): Promise<Response> {
       );
     if (salah) return json({ ok: false, error: "DATA_TIDAK_VALID" }, 400);
   }
-  // Reject anything not from the allowed lists or outside the rules
+
   if (
     !deviceId ||
     !kecValid ||
@@ -164,7 +157,6 @@ async function lapor(req: Request): Promise<Response> {
     return json({ ok: false, error: "DATA_TIDAK_VALID" }, 400);
   }
 
-  // Store a hash of the device ID, never the raw ID
   const hash = new Bun.CryptoHasher("sha256").update(deviceId).digest("hex");
   const triase = hitungTriase({
     gejala,
@@ -187,7 +179,6 @@ async function lapor(req: Request): Promise<Response> {
       iso(Date.now()),
     );
   } catch (e) {
-    // The unique index blocks a second report from the same device today
     if ((e as Error).message.includes("UNIQUE"))
       return json({ ok: false, error: "SUDAH_LAPOR_HARI_INI" }, 429);
     throw e;
@@ -195,23 +186,19 @@ async function lapor(req: Request): Promise<Response> {
   return json({ ok: true, triase });
 }
 
-// Main router: sends each URL to the right handler
+// Main router
 Bun.serve({
   port: Number(process.env.PORT ?? 3000),
   async fetch(req) {
     const { pathname } = new URL(req.url);
     try {
-      // Browser preflight. Must answer before any route check.
       if (req.method === "OPTIONS")
         return new Response(null, { status: 204, headers: CORS });
-      // POST: only /api/lapor is allowed
       if (req.method === "POST" && pathname === "/api/lapor")
         return await lapor(req);
-      // Any other method except GET is not found
       if (req.method !== "GET")
         return json({ ok: false, error: "NOT_FOUND" }, 404);
 
-      // Public GET endpoints
       if (pathname === "/api/lokasi") {
         return json(
           db
@@ -225,7 +212,6 @@ Bun.serve({
         );
       }
       if (pathname === "/api/lingkungan") {
-        // City-level AQI and green space come from a static file
         return json(await Bun.file(path.join(DATA, "lingkungan.json")).json());
       }
       if (pathname === "/api/peta") {
@@ -240,7 +226,6 @@ Bun.serve({
               nama: k.nama,
               lat: k.lat,
               lng: k.lng,
-              // Hide the count when there are fewer than 3 reports (privacy)
               laporan_7hari: r.cur < 3 ? null : r.cur,
               status: r.status,
             };
@@ -248,18 +233,15 @@ Bun.serve({
         );
       }
 
-      // /api/lokasi/<id>/tren: the id is taken from the URL
-      const m = pathname.match(/^\/api\/lokasi\/([^/]+)\/tren$/);
+      const m = pathname.match(/^\/api\/lokasi\/([^/]+)\/tren\$/);
       if (m) return json(tren(m[1]!));
 
-      // Dashboard endpoints: need the token
       if (pathname === "/api/dashboard" || pathname === "/api/dashboard.csv") {
         if (!cekToken(req))
           return json({ ok: false, error: "UNAUTHORIZED" }, 401);
         const baris = dashboard();
         if (pathname === "/api/dashboard") return json(baris);
 
-        // Build the CSV text by hand: header line, then one line per district
         const csv = [
           "lokasi_id,nama,laporan_7hari,laporan_7hari_sebelumnya,perubahan_persen,status",
           ...baris.map((b) =>
@@ -282,12 +264,13 @@ Bun.serve({
         });
       }
 
-      // No route matched
       return json({ ok: false, error: "NOT_FOUND" }, 404);
     } catch (e) {
-      // Log the real error for us, send a generic message to the client
       console.error(e);
-      return json({ ok: false, error: "SERVER_ERROR" }, 500);
+      return Response.json(
+        { status: "error", message: "Kesalahan server." },
+        { status: 500, headers: CORS },
+      );
     }
   },
 });
