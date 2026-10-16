@@ -41,6 +41,7 @@ Entry point `index.ts` memanggil `seed()` lalu menyajikan rute dari `src/api.ts`
 | `WAQI_STASIUN` | `yogyakarta` | nama stasiun WAQI (menghasilkan Sleman, BMKG) |
 | `DASHBOARD_TOKEN` | (kosong) | kalau di-set, `/api/dashboard*` wajib `Authorization: Bearer <token>` |
 | `RATE_LIMIT_PER_MIN` | `30` | batas `POST /api/lapor` per IP per menit |
+| `AQI_REFRESH` | `on` | segarkan AQI otomatis saat server start (butuh `WAQI_TOKEN`); `off` untuk mematikan |
 | `CORS_ORIGIN` | `http://localhost:5173` | origin frontend Vite yang diizinkan |
 
 ## Endpoint
@@ -102,5 +103,5 @@ batas satu laporan per perangkat per hari.
 ## Keterbatasan yang diketahui
 
 - Aturan triase **belum diverifikasi tenaga medis** dan belum dicocokkan dengan pedoman ISPA Kemenkes.
-- Form frontend belum mengirim `kondisi`/`suhu_c`/`durasi_per_gejala`/`kelompok_rentan`, jadi dari UI baru aturan triase 1, 2, dan 6 yang aktif (API-nya sudah menerima semua field itu).
+- Form frontend belum mengirim `kondisi`/`durasi_per_gejala`/`kelompok_rentan`, jadi dari UI aturan 5 (kelompok rentan) belum aktif; aturan 1–4 dan 6 jalan (API-nya sudah menerima semua field itu).
 - AQI adalah satu nilai untuk seluruh kota, bukan per kecamatan.

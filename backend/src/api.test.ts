@@ -6,6 +6,8 @@ import path from "path";
 
 const TMP = path.join("/tmp/opencode", `api-test-${Date.now()}.db`);
 process.env.DB_PATH = TMP;
+process.env.AQI_REFRESH = "off";
+delete process.env.WAQI_TOKEN;
 delete process.env.DASHBOARD_TOKEN;
 delete process.env.RATE_LIMIT_PER_MIN;
 
@@ -83,12 +85,11 @@ test("triase: gejala darurat -> gawat_darurat", async () => {
   expect(json.data.triage.level).toBe("gawat_darurat");
 });
 
-test("triase: demam 3 hari + suhu 38.5 -> perlu_pemeriksaan", async () => {
+test("triase: demam 3 hari -> perlu_pemeriksaan", async () => {
   const { json } = await kirimLapor({
     location_id: LOKASI,
     symptoms: ["demam"],
     duration_days: 3,
-    suhu_c: 38.5,
   });
   expect(json.data.triage.level).toBe("perlu_pemeriksaan");
 });
@@ -122,7 +123,7 @@ test("POST tidak valid -> 422", async () => {
     location_id: LOKASI,
     symptoms: ["batuk"],
     duration_days: 2,
-    suhu_c: 100,
+    durasi_per_gejala: { bukan_gejala: 3 },
   });
   expect(b.status).toBe(422);
 });

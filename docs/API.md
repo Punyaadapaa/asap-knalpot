@@ -86,16 +86,15 @@ Body:
 
   // opsional (PRD 6.4) -- dipakai aturan triase lanjutan:
   "kondisi": "membaik",              // "membaik" | "stabil" | "memburuk"
-  "suhu_c": 38.5,                    // 30..45
   "durasi_per_gejala": { "demam": 3 }, // hari per gejala, menimpa duration_days
   "kelompok_rentan": true            // anak / lansia / ibu hamil
 }
 ```
 
 Field wajib: `location_id`, `symptoms`, `duration_days`. Sisanya opsional; kalau
-dikirim tapi tidak sah (mis. `suhu_c` 100, `kondisi` di luar daftar, atau
-`durasi_per_gejala` memuat kode gejala asing) → `422`. Frontend saat ini belum
-mengirim field opsional, jadi UI hanya memicu aturan 1, 2, dan 6.
+dikirim tapi tidak sah (`kondisi` di luar daftar, atau `durasi_per_gejala`
+memuat kode gejala asing atau angka di luar 1–30) → `422`. Frontend saat ini
+belum mengirim field opsional; dari UI aturan 5 (kelompok rentan) belum aktif, sedangkan aturan 1–4 dan 6 jalan.
 
 Respons:
 
@@ -186,3 +185,4 @@ Ekspor tabel dashboard sebagai CSV (`text/csv`, dibaca Excel dengan UTF-8).
 - AQI & RTH tidak tersedia per kecamatan; keduanya satu angka untuk kota.
 - Nilai AQI diambil dari stasiun WAQI (BMKG) lewat `bun run aqi`.
 - Rate limit `/api/lapor`: 30 permintaan/menit per IP (env `RATE_LIMIT_PER_MIN`).
+- AQI disegarkan saat server start (kalau `WAQI_TOKEN` ada) dan manual lewat `bun run aqi`; nilai tersimpan di `data/lingkungan.json`.
