@@ -23,8 +23,8 @@ export const SymptomCard: React.FC<SymptomCardProps> = ({
                     : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/60 shadow-xs'
             }`}
         >
-            <div>
-                <span className={`text-sm font-bold block ${selected ? 'text-teal-950' : 'text-slate-800'}`}>
+            <div className="min-w-0 pr-2">
+                <span className={`text-sm font-bold block leading-snug ${selected ? 'text-teal-950' : 'text-slate-800'}`}>
                     {symptom.nama}
                 </span>
                 {symptom.is_emergency && (
@@ -35,7 +35,7 @@ export const SymptomCard: React.FC<SymptomCardProps> = ({
             </div>
 
             <div
-                className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
                     selected
                         ? 'bg-teal-600 text-white'
                         : 'border border-slate-300 bg-slate-50'

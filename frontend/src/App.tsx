@@ -18,8 +18,6 @@ import {
     Map,
     UserCheck,
     Building2,
-    Monitor,
-    Smartphone,
     MapPin,
     PanelLeftClose,
     PanelLeftOpen,
@@ -187,10 +185,9 @@ const SideNav: React.FC<SideNavProps> = ({
 interface BottomNavProps {
     currentTab: 'home' | 'lapor' | 'peta' | 'saya';
     onTabChange: (tab: 'home' | 'lapor' | 'peta' | 'saya') => void;
-    isInSimulator?: boolean;
 }
 
-const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange, isInSimulator = false }) => {
+const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange }) => {
     const navItems = [
         { id: 'home' as const, label: 'Home', icon: HomeIcon },
         { id: 'lapor' as const, label: 'Lapor', icon: FileText },
@@ -199,13 +196,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange, isInSimu
     ];
 
     return (
-        <nav
-            className={`${
-                isInSimulator ? 'absolute' : 'fixed'
-            } bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg px-3 py-2 ${
-                isInSimulator ? '' : 'md:hidden'
-            }`}
-        >
+        <nav className="absolute bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg px-3 py-2 pb-safe">
             <div className="flex items-center justify-around">
                 {navItems.map((item) => {
                     const Icon = item.icon;
@@ -236,46 +227,6 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange, isInSimu
     );
 };
 
-// ─── View Mode Switcher ───────────────────────────────────────────────────────
-interface ViewModeSelectorProps {
-    mode: 'desktop' | 'mobile';
-    onChange: (mode: 'desktop' | 'mobile') => void;
-    compact?: boolean;
-}
-
-const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({ mode, onChange, compact = false }) => {
-    return (
-        <div className="inline-flex items-center bg-slate-100 p-1.5 rounded-2xl border border-slate-200 text-sm font-extrabold shadow-2xs">
-            <button
-                type="button"
-                onClick={() => onChange('desktop')}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
-                    mode === 'desktop'
-                        ? 'bg-white text-teal-950 shadow-sm font-black'
-                        : 'text-slate-600 hover:text-slate-900'
-                }`}
-                title="Beralih ke Tampilan Desktop (Layar Lebar & Mudah Dibaca)"
-            >
-                <Monitor size={18} className={mode === 'desktop' ? 'text-teal-600' : ''} />
-                <span className={compact ? 'hidden sm:inline' : ''}>Desktop</span>
-            </button>
-            <button
-                type="button"
-                onClick={() => onChange('mobile')}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
-                    mode === 'mobile'
-                        ? 'bg-white text-teal-950 shadow-sm font-black'
-                        : 'text-slate-600 hover:text-slate-900'
-                }`}
-                title="Beralih ke Tampilan Mobile (Simulasi HP)"
-            >
-                <Smartphone size={18} className={mode === 'mobile' ? 'text-teal-600' : ''} />
-                <span className={compact ? 'hidden sm:inline' : ''}>Mobile</span>
-            </button>
-        </div>
-    );
-};
-
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export const App: React.FC = () => {
     const [currentView, setCurrentView] = useState<
@@ -283,25 +234,20 @@ export const App: React.FC = () => {
     >('home');
     const [activeTab, setActiveTab] = useState<'home' | 'lapor' | 'peta' | 'saya'>('home');
 
-    // Display mode choice: 'desktop' or 'mobile'
-    const [displayMode, setDisplayMode] = useState<'desktop' | 'mobile'>(() => {
-        try {
-            const saved = localStorage.getItem('influenza_display_mode');
-            if (saved === 'desktop' || saved === 'mobile') return saved;
-            return typeof window !== 'undefined' && window.innerWidth >= 768 ? 'desktop' : 'mobile';
-        } catch {
-            return 'desktop';
-        }
-    });
+    // Tata letak dipilih otomatis dari lebar layar (tanpa pemilih manual):
+    // < 768px memakai tata letak HP, >= 768px memakai tata letak desktop.
+    // Ikut berubah saat jendela diperbesar/diperkecil atau layar diputar.
+    const [isMobileView, setIsMobileView] = useState<boolean>(() =>
+        typeof window !== 'undefined' ? window.innerWidth < 768 : true
+    );
 
-    const handleSetDisplayMode = (mode: 'desktop' | 'mobile') => {
-        setDisplayMode(mode);
-        try {
-            localStorage.setItem('influenza_display_mode', mode);
-        } catch (e) {
-            console.error(e);
-        }
-    };
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 767px)');
+        const sync = () => setIsMobileView(mq.matches);
+        sync();
+        mq.addEventListener('change', sync);
+        return () => mq.removeEventListener('change', sync);
+    }, []);
 
     const [locations, setLocations] = useState<LocationItem[]>([]);
     const [symptoms, setSymptoms] = useState<SymptomItem[]>([]);
@@ -552,73 +498,43 @@ export const App: React.FC = () => {
         return 'w-full max-w-[1580px] mx-auto';
     };
 
-    // ── Mobile Mode Rendering ───────────────────────────────────────────────
-    if (displayMode === 'mobile') {
+    // ── Mobile Layout (otomatis saat lebar layar < 768px) ───────────────────
+    if (isMobileView) {
         return (
-            <div className="min-h-screen bg-slate-900 md:bg-slate-950 flex flex-col items-center justify-start md:py-6 md:px-4">
-                {/* Desktop Top Control Bar when in Mobile Mode */}
-                <div className="hidden md:flex w-full max-w-md bg-slate-800/90 backdrop-blur-md rounded-2xl p-2.5 border border-slate-700/80 mb-4 items-center justify-between shadow-xl">
-                    <div className="flex items-center space-x-2 text-xs">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="font-bold text-white">Mode Mobile Aktif</span>
-                        <span className="text-slate-400 text-[11px]">(Simulasi HP)</span>
-                    </div>
-                    <ViewModeSelector mode={displayMode} onChange={handleSetDisplayMode} />
-                </div>
-
-                {/* Smartphone Device Mockup Frame on Desktop / Full Screen on Mobile */}
-                <div className="w-full md:w-[412px] bg-slate-50 md:rounded-[42px] md:shadow-2xl md:border-[9px] md:border-slate-800 relative flex flex-col min-h-screen md:min-h-[840px] md:max-h-[92vh] overflow-hidden">
-                    {/* Simulated Phone Top Speaker & Camera Notch (Desktop view only) */}
-                    <div className="hidden md:flex w-full bg-slate-800 py-1.5 justify-center items-center">
-                        <div className="w-24 h-4 bg-slate-950 rounded-full flex items-center justify-center space-x-2 px-2">
-                            <div className="w-2 h-2 rounded-full bg-slate-800" />
-                            <div className="w-9 h-1 rounded-full bg-slate-800" />
+            <div className="relative w-full h-dvh bg-slate-50 flex flex-col overflow-hidden">
+                {/* Mobile App Header */}
+                <header className="px-3 pb-3 pt-safe bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex items-center justify-between gap-2 sticky top-0 z-30 shadow-2xs">
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-xs shrink-0">
+                            IA
+                        </div>
+                        <div className="min-w-0">
+                            <h1 className="text-sm font-black text-slate-900 leading-tight truncate">
+                                InfluenzaAware
+                            </h1>
+                            <p className="text-[10px] text-teal-600 font-semibold truncate">
+                                Pantau Udara · Kenali Gejala
+                            </p>
                         </div>
                     </div>
 
-                    {/* Mobile App Header */}
-                    <header className="px-4 py-3 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
-                        <div className="flex items-center space-x-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-xs">
-                                IA
-                            </div>
-                            <div>
-                                <h1 className="text-sm font-black text-slate-900 leading-tight">
-                                    InfluenzaAware
-                                </h1>
-                                <p className="text-[10px] text-teal-600 font-semibold">
-                                    Pantau Udara · Kenali Gejala
-                                </p>
-                            </div>
-                        </div>
+                    <button
+                        onClick={() => setCurrentView('dashboard')}
+                        title="Buka Dashboard Puskesmas"
+                        className="shrink-0 flex items-center space-x-1 py-1.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200/90 transition-colors cursor-pointer"
+                    >
+                        <Building2 size={14} className="text-teal-700" />
+                        <span className="hidden min-[380px]:inline">Puskesmas</span>
+                    </button>
+                </header>
 
-                        <div className="flex items-center space-x-2">
-                            {/* Mobile View Mode Switcher */}
-                            <div className="md:hidden">
-                                <ViewModeSelector mode={displayMode} onChange={handleSetDisplayMode} compact />
-                            </div>
+                {/* Scrollable Mobile Page Body */}
+                <main className="flex-1 overflow-y-auto px-4 pt-3 pb-safe-lg">
+                    {renderContent(false)}
+                </main>
 
-                            <button
-                                onClick={() => setCurrentView('dashboard')}
-                                className="py-1 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200/90 transition-colors"
-                            >
-                                Puskesmas
-                            </button>
-                        </div>
-                    </header>
-
-                    {/* Scrollable Mobile Page Body */}
-                    <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24">
-                        {renderContent(false)}
-                    </main>
-
-                    {/* Mobile Bottom Navigation */}
-                    <BottomNav
-                        currentTab={activeTab}
-                        onTabChange={handleTabChange}
-                        isInSimulator={true}
-                    />
-                </div>
+                {/* Mobile Bottom Navigation */}
+                <BottomNav currentTab={activeTab} onTabChange={handleTabChange} />
             </div>
         );
     }
@@ -628,7 +544,7 @@ export const App: React.FC = () => {
         <div className="min-h-screen bg-slate-100/60 flex">
             {/* ── Desktop Sidebar (SideNav, collapsible) ── */}
             <div
-                className={`shrink-0 h-screen sticky top-0 overflow-hidden transition-[width] duration-200 ease-out ${
+                className={`hidden md:block shrink-0 h-screen sticky top-0 overflow-hidden transition-[width] duration-200 ease-out ${
                     isSidebarOpen ? 'w-80 xl:w-[340px]' : 'w-0'
                 }`}
             >
@@ -644,14 +560,14 @@ export const App: React.FC = () => {
             {/* ── Main Content Area ── */}
             <div className="flex-1 flex flex-col min-h-screen min-w-0">
                 {/* ── Top Header Bar (Desktop) ── */}
-                <header className="flex items-center justify-between px-10 py-5 bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
+                <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 py-4 lg:py-5 bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
                     <div className="flex items-center gap-4 min-w-0">
                         <button
                             onClick={() => setIsSidebarOpen((v) => !v)}
                             aria-label={isSidebarOpen ? 'Sembunyikan menu' : 'Tampilkan menu'}
                             aria-expanded={isSidebarOpen}
                             title={isSidebarOpen ? 'Sembunyikan menu' : 'Tampilkan menu'}
-                            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
+                            className="hidden md:flex shrink-0 w-10 h-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
                         >
                             {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
                         </button>
@@ -668,13 +584,10 @@ export const App: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Right side: View Mode Switcher + Location Badge + Action */}
-                    <div className="flex items-center space-x-4">
-                        {/* Desktop / Mobile View Switcher */}
-                        <ViewModeSelector mode={displayMode} onChange={handleSetDisplayMode} />
-
+                    {/* Right side: Location Badge + Action */}
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                         {currentLocation && (
-                            <div className="flex items-center space-x-2.5 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-sm text-slate-700 shadow-2xs">
+                            <div className="hidden lg:flex items-center space-x-2.5 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-sm text-slate-700 shadow-2xs">
                                 <span className="font-black text-slate-900">{currentLocation.nama}</span>
                                 <span className="text-slate-300">·</span>
                                 <span

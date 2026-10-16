@@ -2,15 +2,15 @@ import React from 'react';
 import { Info, Lock } from 'lucide-react';
 
 interface MapLegendProps {
-    activeLayer: 'gejala' | 'aqi' | 'rth';
+    activeLayer: 'gejala' | 'aqi';
 }
 
 export const MapLegend: React.FC<MapLegendProps> = ({ activeLayer }) => {
     return (
         <div className="bg-white/95 backdrop-blur-xs rounded-2xl p-3 border border-slate-200/90 shadow-xs text-xs space-y-2">
-            <div className="font-bold text-slate-700 flex items-center justify-between">
-                <span>Legenda: {activeLayer === 'gejala' ? 'Laporan Gejala' : activeLayer === 'aqi' ? 'Kualitas Udara (AQI)' : 'Ruang Terbuka Hijau'}</span>
-                <span className="text-[10px] text-slate-400 font-normal">Tingkat Kecamatan</span>
+            <div className="font-bold text-slate-700 flex items-center justify-between gap-2">
+                <span className="min-w-0">Legenda: {activeLayer === 'gejala' ? 'Laporan Gejala' : 'Kualitas Udara (AQI)'}</span>
+                <span className="text-[10px] text-slate-400 font-normal whitespace-nowrap shrink-0">Tingkat Kecamatan</span>
             </div>
 
             {activeLayer === 'gejala' && (
@@ -62,24 +62,6 @@ export const MapLegend: React.FC<MapLegendProps> = ({ activeLayer }) => {
                 </div>
             )}
 
-            {activeLayer === 'rth' && (
-                <div className="space-y-1.5 pt-1">
-                    <div className="flex items-center space-x-2">
-                        <span className="w-3 h-3 rounded-full bg-emerald-600 flex-shrink-0" />
-                        <span className="text-slate-700 font-medium">Tinggi (≥ 20%)</span>
-                        <span className="text-slate-400 text-[11px]">— Daya serap polusi optimal</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <span className="w-3 h-3 rounded-full bg-teal-500 flex-shrink-0" />
-                        <span className="text-slate-700 font-medium">Sedang (15–19.9%)</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <span className="w-3 h-3 rounded-full bg-amber-400 flex-shrink-0" />
-                        <span className="text-slate-700 font-medium">Rendah (&lt; 15%)</span>
-                        <span className="text-slate-400 text-[11px]">— Minim vegetasi pelindung</span>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
