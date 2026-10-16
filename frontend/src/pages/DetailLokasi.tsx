@@ -121,7 +121,7 @@ export const DetailLokasi: React.FC<DetailLokasiProps> = ({
                                 ) : (
                                     <div className="mt-1">
                                         <div className="flex items-baseline space-x-2">
-                                            <span className="text-3xl font-black text-slate-900">
+                                            <span className="text-2xl xl:text-3xl font-black text-slate-900">
                                                 {location.total_reports_7d}
                                             </span>
                                             <span className="text-sm font-semibold text-slate-600">
@@ -159,7 +159,7 @@ export const DetailLokasi: React.FC<DetailLokasiProps> = ({
                                     <Calendar size={14} className="text-teal-600" />
                                     <span>Grafik Tren Harian (7 Hari Terakhir)</span>
                                 </span>
-                                <span className="text-[11px] text-slate-400">Data Agregat</span>
+                                <span className="text-2xs text-slate-400">Data Agregat</span>
                             </div>
 
                             <TrendChart
@@ -192,7 +192,7 @@ export const DetailLokasi: React.FC<DetailLokasiProps> = ({
                         </div>
 
                         {location.aqi_source.toLowerCase().includes('model') && (
-                            <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 leading-relaxed flex items-start space-x-2">
+                            <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-2xs text-amber-900 leading-relaxed flex items-start space-x-2">
                                 <Info size={14} className="text-amber-700 shrink-0 mt-0.5" />
                                 <span>
                                     Data merupakan estimasi/model, bukan hasil pengukuran langsung dari stasiun.

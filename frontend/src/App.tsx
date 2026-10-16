@@ -49,16 +49,16 @@ const SideNav: React.FC<SideNavProps> = ({
     ];
 
     return (
-        <aside className="w-80 xl:w-[340px] shrink-0 flex flex-col h-screen sticky top-0 bg-white border-r border-slate-200 z-30 select-none overflow-y-auto">
+        <aside className="w-64 xl:w-72 shrink-0 flex flex-col h-screen sticky top-0 bg-white border-r border-slate-200 z-30 select-none overflow-y-auto">
             {/* Logo & Branding */}
-            <div className="p-6 border-b border-slate-100">
+            <div className="p-4 xl:p-6 border-b border-slate-100">
                 <div className="flex items-center space-x-3.5">
-                    <div className="w-12 h-12 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-lg shrink-0">
+                    <div className="w-10 h-10 xl:w-12 xl:h-12 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-base xl:text-lg shrink-0">
                         IA
                     </div>
                     <div>
                         <div className="flex items-center space-x-1.5">
-                            <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">
+                            <h1 className="text-lg xl:text-xl font-black text-slate-900 tracking-tight leading-none">
                                 InfluenzaAware
                             </h1>
                         </div>
@@ -111,7 +111,7 @@ const SideNav: React.FC<SideNavProps> = ({
 
             {/* Quick Stats Footer in Sidebar */}
             {currentLocation && (
-                <div className="mt-auto p-5 border-t border-slate-100 space-y-3">
+                <div className="mt-auto p-4 xl:p-5 border-t border-slate-100 space-y-3">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                         Wilayah Aktif
                     </p>
@@ -151,28 +151,23 @@ const SideNav: React.FC<SideNavProps> = ({
                         <div className="flex">
                                 <InfoModal title="Tentang Angka Wilayah Ini">
                                     <p>
-                                        <strong className="text-slate-800">Laporan 7 hari</strong> = jumlah
-                                        warga yang melaporkan gejala pernapasan di kecamatan ini dalam 7
-                                        hari terakhir.
+                                        <strong className="text-slate-800">Laporan 7 hari</strong> — warga
+                                        yang melaporkan gejala pernapasan di kecamatan ini.
                                     </p>
                                     <p>
-                                        <strong className="text-slate-800">Kualitas Udara (AQI)</strong> =
-                                        indeks kualitas udara dari stasiun pemantau BMKG. 0–50 baik, 51–100
-                                        sedang, di atas 100 kurang sehat untuk penderita asma dan lansia.
+                                        <strong className="text-slate-800">AQI</strong> — kualitas udara
+                                        dari stasiun BMKG. 0–50 baik, 51–100 sedang, di atas 100 kurang
+                                        sehat.
                                     </p>
                                     <p>
-                                        <strong className="text-slate-800">Ruang Hijau (RTH)</strong> =
-                                        persentase wilayah yang masih berupa ruang terbuka hijau. Makin
-                                        tinggi, makin baik menyerap polusi.
+                                        <strong className="text-slate-800">RTH</strong> — persentase ruang
+                                        terbuka hijau. Makin tinggi, makin baik menyerap polusi.
                                     </p>
-                                    <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs">
-                                        <strong>Catatan wilayah:</strong> angka kualitas udara dan ruang
-                                        hijau dihitung untuk seluruh Kota Yogyakarta, jadi nilainya sama di
-                                        setiap kecamatan. Hanya angka laporan yang khusus kecamatan ini.
-                                    </div>
                                     <p className="text-xs text-slate-500">
-                                        Kalau jumlah laporan kurang dari 3, angkanya ditampilkan sebagai
-                                        &lt;3 demi melindungi privasi pelapor.
+                                        AQI dan RTH berlaku untuk seluruh Kota Yogyakarta, jadi nilainya
+                                        sama di tiap kecamatan. Hanya angka laporan yang khusus kecamatan
+                                        ini, dan laporan kurang dari 3 ditampilkan sebagai &lt;3 demi
+                                        privasi.
                                     </p>
                                 </InfoModal>
                             </div>
@@ -549,7 +544,7 @@ export const App: React.FC = () => {
     const getDesktopContainerClass = () => {
         if (currentView === 'lapor') return 'max-w-3xl mx-auto';
         if (currentView === 'triase') return 'max-w-2xl mx-auto';
-        return 'w-full max-w-[1580px] mx-auto';
+        return 'w-full max-w-[1440px] mx-auto';
     };
 
     // ── Mobile Mode Rendering ───────────────────────────────────────────────
@@ -561,7 +556,7 @@ export const App: React.FC = () => {
                     <div className="flex items-center space-x-2 text-xs">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="font-bold text-white">Mode Mobile Aktif</span>
-                        <span className="text-slate-400 text-[11px]">(Simulasi HP)</span>
+                        <span className="text-slate-400 text-2xs">(Simulasi HP)</span>
                     </div>
                     <ViewModeSelector mode={displayMode} onChange={handleSetDisplayMode} />
                 </div>
@@ -586,7 +581,7 @@ export const App: React.FC = () => {
                                 <h1 className="text-sm font-black text-slate-900 leading-tight">
                                     InfluenzaAware
                                 </h1>
-                                <p className="text-[10px] text-teal-600 font-semibold">
+                                <p className="text-3xs text-teal-600 font-semibold">
                                     Pantau Udara · Kenali Gejala
                                 </p>
                             </div>
@@ -625,11 +620,11 @@ export const App: React.FC = () => {
 
     // ── Desktop Mode Layout ─────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-slate-100/60 flex">
+        <div className="desktop-shell min-h-screen bg-slate-100/60 flex">
             {/* ── Desktop Sidebar (SideNav, collapsible) ── */}
             <div
                 className={`shrink-0 h-screen sticky top-0 overflow-hidden transition-[width] duration-200 ease-out ${
-                    isSidebarOpen ? 'w-80 xl:w-[340px]' : 'w-0'
+                    isSidebarOpen ? 'w-64 xl:w-72' : 'w-0'
                 }`}
             >
                 <SideNav
@@ -644,7 +639,7 @@ export const App: React.FC = () => {
             {/* ── Main Content Area ── */}
             <div className="flex-1 flex flex-col min-h-screen min-w-0">
                 {/* ── Top Header Bar (Desktop) ── */}
-                <header className="flex items-center justify-between px-10 py-5 bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
+                <header className="flex items-center justify-between px-6 py-4 xl:px-9 xl:py-5 bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
                     <div className="flex items-center gap-4 min-w-0">
                         <button
                             onClick={() => setIsSidebarOpen((v) => !v)}
@@ -657,7 +652,7 @@ export const App: React.FC = () => {
                         </button>
                         <div className="min-w-0">
                             <div className="flex items-center space-x-3">
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                                <h2 className="text-xl xl:text-2xl font-black text-slate-900 tracking-tight leading-tight">
                                     {getPageTitle()}
                                 </h2>
                                 <span className="bg-teal-50 text-teal-800 text-xs font-black px-3 py-1 rounded-lg border border-teal-200">
@@ -704,7 +699,7 @@ export const App: React.FC = () => {
                 </header>
 
                 {/* ── Scrollable Page Content ── */}
-                <main className="flex-1 overflow-y-auto px-6 py-6 lg:px-10 lg:py-8">
+                <main className="flex-1 overflow-y-auto px-6 py-5 xl:px-9 xl:py-7">
                     <div className={getDesktopContainerClass()}>
                         {renderContent(true)}
                     </div>

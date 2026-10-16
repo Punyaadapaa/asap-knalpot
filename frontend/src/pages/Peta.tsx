@@ -46,7 +46,7 @@ export const Peta: React.FC<PetaProps> = ({
                             <h1 className="text-lg font-black text-slate-900 leading-tight">
                                 Peta Kondisi Wilayah
                             </h1>
-                            <p className="text-[11px] text-slate-500 font-medium">
+                            <p className="text-2xs text-slate-500 font-medium">
                                 Pantau laporan gejala, AQI, dan ruang hijau
                             </p>
                         </div>

@@ -43,7 +43,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         return (
             <div className="flex flex-col items-center justify-center h-28 text-center p-3 bg-slate-100/60 rounded-xl border border-dashed border-slate-200">
                 <span className="text-xs font-semibold text-slate-600">Grafik tren tidak tersedia</span>
-                <span className="text-[11px] text-slate-400 mt-0.5">Jumlah laporan belum memenuhi ambang privasi minimum</span>
+                <span className="text-2xs text-slate-400 mt-0.5">Jumlah laporan belum memenuhi ambang privasi minimum</span>
             </div>
         );
     }
@@ -137,7 +137,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
                                 x={p.x}
                                 y={padding.top + chartHeight + 16}
                                 textAnchor="middle"
-                                className="text-[10px] fill-slate-400 font-medium"
+                                className="text-3xs fill-slate-400 font-medium"
                             >
                                 {p.label}
                             </text>
@@ -148,7 +148,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
             {/* Hover tooltip */}
             {hoveredIndex !== null && points[hoveredIndex] && (
                 <div
-                    className="absolute z-10 bg-slate-900 text-white text-[11px] font-semibold px-2 py-1 rounded-md shadow-md pointer-events-none transform -translate-x-1/2 -translate-y-8"
+                    className="absolute z-10 bg-slate-900 text-white text-2xs font-semibold px-2 py-1 rounded-md shadow-md pointer-events-none transform -translate-x-1/2 -translate-y-8"
                     style={{
                         left: `${(points[hoveredIndex].x / width) * 100}%`,
                         top: `${(points[hoveredIndex].y / height) * 100}%`,

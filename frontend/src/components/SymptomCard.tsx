@@ -28,7 +28,7 @@ export const SymptomCard: React.FC<SymptomCardProps> = ({
                     {symptom.nama}
                 </span>
                 {symptom.is_emergency && (
-                    <span className="text-[10px] font-semibold text-rose-600 uppercase tracking-wider block">
+                    <span className="text-3xs font-semibold text-rose-600 uppercase tracking-wider block">
                         Prioritas Medis
                     </span>
                 )}

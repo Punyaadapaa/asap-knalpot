@@ -39,7 +39,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentTab, 
                             >
                                 <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
-                            <span className="text-[11px] mt-0.5 tracking-tight">{item.label}</span>
+                            <span className="text-2xs mt-0.5 tracking-tight">{item.label}</span>
                         </button>
                     );
                 })}

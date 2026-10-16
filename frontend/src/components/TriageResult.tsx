@@ -75,7 +75,7 @@ export const TriageResult: React.FC<TriageResultProps> = ({
                 </span>
                 {triage.recommendations.map((rec, i) => (
                     <div key={i} className="flex items-start space-x-2 text-xs text-slate-700 font-medium">
-                        <span className="text-teal-600 font-bold">✓</span>
+                        <CheckCircle2 size={14} className="text-teal-600 mt-0.5 shrink-0" />
                         <span>{rec}</span>
                     </div>
                 ))}
@@ -135,7 +135,7 @@ export const TriageResult: React.FC<TriageResultProps> = ({
             </div>
 
             {/* Disclaimer footer */}
-            <div className="mt-4 pt-3 border-t border-slate-100 text-[10px] text-slate-400">
+            <div className="mt-4 pt-3 border-t border-slate-100 text-3xs text-slate-400">
                 Arahan triase merupakan panduan awal kesehatan publik dan bukan pengganti diagnosis medis resmi dokter.
             </div>
 
@@ -172,15 +172,15 @@ export const TriageResult: React.FC<TriageResultProps> = ({
                                 <div className="space-y-2">
                                     <div className="py-2.5">
                                         <strong className="block text-slate-900">Puskesmas Gondokusuman I & II</strong>
-                                        <span className="text-[11px] text-slate-500">Layanan Umum & Pemeriksaan Saluran Pernapasan</span>
+                                        <span className="text-2xs text-slate-500">Layanan Umum & Pemeriksaan Saluran Pernapasan</span>
                                     </div>
                                     <div className="py-2.5">
                                         <strong className="block text-slate-900">Puskesmas Jetis</strong>
-                                        <span className="text-[11px] text-slate-500">Jl. Pasiraman No.9, Jetis</span>
+                                        <span className="text-2xs text-slate-500">Jl. Pasiraman No.9, Jetis</span>
                                     </div>
                                     <div className="py-2.5">
                                         <strong className="block text-slate-900">RS Pratama Kota Yogyakarta</strong>
-                                        <span className="text-[11px] text-slate-500">Mergangsan, Yogyakarta</span>
+                                        <span className="text-2xs text-slate-500">Mergangsan, Yogyakarta</span>
                                     </div>
                                 </div>
                             </div>

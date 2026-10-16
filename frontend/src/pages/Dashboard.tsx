@@ -75,11 +75,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 <h1 className="text-base font-black text-slate-900 leading-tight">
                                     InfluenzaAware
                                 </h1>
-                                <span className="bg-teal-50 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-teal-200">
+                                <span className="bg-teal-50 text-teal-800 text-3xs font-bold px-2 py-0.5 rounded-md border border-teal-200">
                                     Puskesmas & Pengelola
                                 </span>
                             </div>
-                            <p className="text-[11px] text-slate-400">
+                            <p className="text-2xs text-slate-400">
                                 
                             </p>
                         </div>
@@ -151,64 +151,64 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         {/* Total Laporan */}
                         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                            <span className="text-2xs font-bold text-slate-400 uppercase tracking-wider block">
                                 Total Laporan (7 Hari)
                             </span>
                             <div className="flex items-baseline space-x-2 mt-1">
-                                <span className="text-3xl font-black text-slate-900">
+                                <span className="text-2xl xl:text-3xl font-black text-slate-900">
                                     {data.summary.total_laporan}
                                 </span>
                                 <span className="text-xs font-semibold text-slate-500">laporan</span>
                             </div>
-                            <span className="text-[11px] text-slate-400 mt-2 block">
+                            <span className="text-2xs text-slate-400 mt-2 block">
                                 Sinyal keluhan warga masuk
                             </span>
                         </div>
 
                         {/* Wilayah Mengalami Kenaikan */}
                         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                            <span className="text-2xs font-bold text-slate-400 uppercase tracking-wider block">
                                 Wilayah Meningkat
                             </span>
                             <div className="flex items-baseline space-x-2 mt-1">
-                                <span className="text-3xl font-black text-amber-600">
+                                <span className="text-2xl xl:text-3xl font-black text-amber-600">
                                     {data.summary.wilayah_meningkat}
                                 </span>
                                 <span className="text-xs font-semibold text-slate-500">kecamatan</span>
                             </div>
-                            <span className="text-[11px] text-amber-700/80 mt-2 block font-medium">
+                            <span className="text-2xs text-amber-700/80 mt-2 block font-medium">
                                 Status: ↑ Naik dibanding periode lalu
                             </span>
                         </div>
 
                         {/* Perubahan Mingguan */}
                         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                            <span className="text-2xs font-bold text-slate-400 uppercase tracking-wider block">
                                 Tren Mingguan Kota
                             </span>
                             <div className="flex items-baseline space-x-2 mt-1">
-                                <span className={`text-3xl font-black ${data.summary.perubahan_mingguan > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                <span className={`text-2xl xl:text-3xl font-black ${data.summary.perubahan_mingguan > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
                                     {data.summary.perubahan_mingguan > 0 ? `+${data.summary.perubahan_mingguan}%` : `${data.summary.perubahan_mingguan}%`}
                                 </span>
                                 <span className="text-xs font-semibold text-slate-500">vs 7 hari lalu</span>
                             </div>
-                            <span className="text-[11px] text-slate-400 mt-2 block">
+                            <span className="text-2xs text-slate-400 mt-2 block">
                                 Perubahan volume kota
                             </span>
                         </div>
 
                         {/* Area Terpantau */}
                         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                            <span className="text-2xs font-bold text-slate-400 uppercase tracking-wider block">
                                 Area Terpantau
                             </span>
                             <div className="flex items-baseline space-x-2 mt-1">
-                                <span className="text-3xl font-black text-teal-800">
+                                <span className="text-2xl xl:text-3xl font-black text-teal-800">
                                     {data.summary.area_terpantau}
                                 </span>
                                 <span className="text-xs font-semibold text-slate-500">wilayah</span>
                             </div>
-                            <span className="text-[11px] text-slate-400 mt-2 block">
+                            <span className="text-2xs text-slate-400 mt-2 block">
                                 Cakupan aktif Yogyakarta
                             </span>
                         </div>
@@ -338,7 +338,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                                 <tr key={loc.id} className="hover:bg-slate-50/70 transition-colors">
                                                     <td className="py-3.5 px-4 font-bold text-slate-900">
                                                         {loc.nama}
-                                                        <span className="block text-[10px] text-slate-400 font-normal">
+                                                        <span className="block text-3xs text-slate-400 font-normal">
                                                             {loc.kota}
                                                         </span>
                                                     </td>
@@ -386,7 +386,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                                                     <td className="py-3.5 px-4">
                                                         <span className="font-bold text-slate-800">AQI {loc.aqi}</span>
-                                                        <span className="block text-[10px] text-slate-500">
+                                                        <span className="block text-3xs text-slate-500">
                                                             {loc.aqi_category} ({loc.aqi_source})
                                                         </span>
                                                     </td>
@@ -422,7 +422,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     Ambang minimum privasi: wilayah dengan kurang dari 3 laporan disamarkan demi menjaga anonimitas warga.
                                 </span>
                             </div>
-                            <span className="text-[11px] text-slate-400">
+                            <span className="text-2xs text-slate-400">
                                 Standar Kesehatan Publik Digital
                             </span>
                         </div>

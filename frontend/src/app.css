@@ -12,6 +12,25 @@
     --color-teal-700: #0f766e;
     --color-teal-800: #115e59;
     --color-teal-900: #134e4a;
+    --text-3xs: 0.625rem;
+    --text-3xs--line-height: calc(0.875 / 0.625);
+    --text-2xs: 0.6875rem;
+    --text-2xs--line-height: calc(1 / 0.6875);
+}
+
+/*
+ * Skala tampilan desktop.
+ * Ukuran akar fluid mengikuti lebar layar: 12,8px pada 1280px (persis 80% dari 16px),
+ * lalu naik sampai 16px pada 1600px ke atas. Efeknya sama seperti memakai zoom 80%
+ * pada browser, tapi otomatis tanpa perlu mengubah zoom.
+ */
+html:has(.desktop-shell) {
+    font-size: clamp(12.8px, 1vw, 16px);
+}
+
+/* Blur latar saat modal penjelasan terbuka (termasuk di atas peta). */
+body.modal-blur #root {
+    filter: blur(3px);
 }
 
 body {

@@ -30,7 +30,7 @@ export const PrivacyCard: React.FC<PrivacyCardProps> = ({ compact = false }) => 
                 <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
                     Sistem tidak meminta nama, nomor telepon, atau NIK. Jika laporan di wilayah ini kurang dari 3, angka disembunyikan untuk mencegah identifikasi pelapor.
                 </p>
-                <div className="flex items-center space-x-1.5 mt-2 text-[11px] font-semibold text-teal-800">
+                <div className="flex items-center space-x-1.5 mt-2 text-2xs font-semibold text-teal-800">
                     <ShieldCheck size={14} className="text-teal-600" />
                     <span>Privacy-by-Design terverifikasi</span>
                 </div>

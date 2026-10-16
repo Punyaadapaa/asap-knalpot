@@ -70,7 +70,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
                             <UserCheck size={20} className="text-teal-700" />
                             <span>Gejala Saya</span>
                         </h1>
-                        <p className="text-[11px] text-slate-500 font-medium">
+                        <p className="text-2xs text-slate-500 font-medium">
                             Kartu riwayat laporan lokal di perangkat ini
                         </p>
                     </div>
@@ -94,7 +94,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
                                 <UserCheck size={18} />
                             </div>
                             <div>
-                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                                <span className="text-2xs font-bold text-slate-400 uppercase tracking-wider block">
                                     Riwayat Tersimpan
                                 </span>
                                 <span className="text-base font-extrabold text-slate-900">
@@ -136,7 +136,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
             {!isDesktop && (
                 <div className="bg-teal-50/70 border border-teal-200/90 rounded-2xl p-3.5 flex items-start space-x-2.5 text-xs text-teal-900 shadow-xs">
                     <Lock size={16} className="text-teal-700 flex-shrink-0 mt-0.5" />
-                    <p className="leading-relaxed text-[11px]">
+                    <p className="leading-relaxed text-2xs">
                         <strong>Penyimpanan Lokal:</strong> Data ini hanya tersimpan di browser perangkat kamu dan tidak dijadikan rekam medis server.
                     </p>
                 </div>
@@ -210,7 +210,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
 
                                     {/* Symptoms list */}
                                     <div className="space-y-1.5">
-                                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                                        <span className="text-2xs font-bold text-slate-400 uppercase tracking-wider block">
                                             Gejala yang dirasakan:
                                         </span>
                                         <div className="flex flex-wrap gap-2">

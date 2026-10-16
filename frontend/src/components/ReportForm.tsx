@@ -238,7 +238,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
                         </button>
                         {locationHint && (
                             <p
-                                className={`text-[11px] leading-relaxed ${
+                                className={`text-2xs leading-relaxed ${
                                     locationHint.tone === 'success'
                                         ? 'text-teal-700'
                                         : locationHint.tone === 'error'
@@ -377,7 +377,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
                         <Lock size={16} className="text-teal-700 flex-shrink-0 mt-0.5" />
                         <div>
                             <strong className="font-bold block">Privasi Terjamin</strong>
-                            <p className="text-[11px] text-teal-800 mt-0.5 leading-relaxed">
+                            <p className="text-2xs text-teal-800 mt-0.5 leading-relaxed">
                                 Sistem tidak meminta nama atau NIK. Laporan diproses secara anonim untuk sinyal kesehatan publik.
                             </p>
                         </div>

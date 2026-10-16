@@ -66,22 +66,14 @@ export const AQICard: React.FC<AQICardProps> = ({ location }) => {
                 </div>
                 <InfoModal title="Tentang Data Kualitas Udara">
                     <p>
-                        Data kualitas udara (AQI) ditampilkan secara transparan untuk memberikan konteks lingkungan di sekitarmu.
-                    </p>
-                    {location.aqi_source.toLowerCase().includes('model') ? (
-                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs">
-                            <strong>Catatan Sumber Model:</strong> Data merupakan estimasi/model matematis, bukan hasil pengukuran sensor langsung dari stasiun pemantau.
-                        </div>
-                    ) : (
-                        <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs">
-                            <strong>Stasiun Resmi:</strong> Data diukur langsung oleh sensor stasiun pemantau lingkungan fisik.
-                        </div>
-                    )}
-                    <p className="text-xs text-slate-500">
-                        Angka AQI bertujuan memberikan kesadaran perlindungan diri seperti penggunaan masker atau pembatasan aktivitas fisik berat di luar ruangan.
+                        <strong className="text-slate-800">AQI</strong> — indeks kualitas udara.
+                        0–50 baik, 51–100 sedang, di atas 100 kurang sehat.
                     </p>
                     <p className="text-xs text-slate-500">
-                        Nilainya berlaku untuk wilayah Kota Yogyakarta, jadi sama di setiap kecamatan.
+                        {location.aqi_source.toLowerCase().includes('model')
+                            ? 'Angka ini estimasi model, bukan pengukuran sensor langsung.'
+                            : 'Angka ini diukur langsung oleh sensor stasiun pemantau.'}{' '}
+                        Berlaku untuk seluruh Kota Yogyakarta, jadi sama di setiap kecamatan.
                     </p>
                 </InfoModal>
             </div>
@@ -90,7 +82,7 @@ export const AQICard: React.FC<AQICardProps> = ({ location }) => {
                 <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase">
                     AQI
                 </span>
-                <div className={`text-5xl font-extrabold tracking-tight ${theme.text} my-1`}>
+                <div className={`text-3xl xl:text-4xl font-extrabold tracking-tight ${theme.text} my-1`}>
                     {location.aqi}
                 </div>
                 <div className={`inline-flex items-center px-3.5 py-1 rounded-full text-sm font-bold ${theme.badgeBg} ${theme.badgeText}`}>
