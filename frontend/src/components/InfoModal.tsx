@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Info, X } from 'lucide-react';
 
 interface InfoModalProps {
@@ -16,8 +17,9 @@ const TOMBOL_DEFAULT =
     'shrink-0 text-slate-500 hover:text-slate-800 text-xs flex items-center space-x-1 bg-white/80 backdrop-blur-xs px-2.5 py-1 rounded-full border border-slate-200/80 cursor-pointer transition-colors';
 
 /**
- * Tombol kecil "ⓘ Tentang data" yang membuka modal penjelasan istilah.
- * Polanya mengikuti modal yang sudah dipakai di AQICard agar tampilannya seragam.
+ * Tombol kecil "Tentang data" yang membuka modal penjelasan istilah.
+ * Modal dirender lewat portal ke <body> supaya selalu menutup seluruh layar
+ * (tidak terpotong wadahnya) dan berada di atas kanvas peta.
  */
 export const InfoModal: React.FC<InfoModalProps> = ({
     title,
@@ -33,7 +35,11 @@ export const InfoModal: React.FC<InfoModalProps> = ({
             if (e.key === 'Escape') setBuka(false);
         };
         document.addEventListener('keydown', onKey);
-        return () => document.removeEventListener('keydown', onKey);
+        document.body.classList.add('modal-blur');
+        return () => {
+            document.removeEventListener('keydown', onKey);
+            document.body.classList.remove('modal-blur');
+        };
     }, [buka]);
 
     return (
@@ -48,43 +54,45 @@ export const InfoModal: React.FC<InfoModalProps> = ({
                 <span>{buttonLabel}</span>
             </button>
 
-            {buka && (
-                <div
-                    className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={title}
-                    onClick={() => setBuka(false)}
-                >
+            {buka &&
+                createPortal(
                     <div
-                        className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto"
-                        onClick={(e) => e.stopPropagation()}
+                        className="fixed inset-0 z-[9999] bg-slate-900/45 flex items-center justify-center p-4"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={title}
+                        onClick={() => setBuka(false)}
                     >
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-bold text-slate-900 flex items-center space-x-2">
-                                <Info size={18} className="text-teal-600" />
-                                <span>{title}</span>
-                            </h3>
+                        <div
+                            className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="font-bold text-slate-900 flex items-center space-x-2">
+                                    <Info size={18} className="text-teal-600 shrink-0" />
+                                    <span>{title}</span>
+                                </h3>
+                                <button
+                                    onClick={() => setBuka(false)}
+                                    className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer"
+                                    aria-label="Tutup"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            <div className="text-sm text-slate-600 space-y-2">{children}</div>
+
                             <button
                                 onClick={() => setBuka(false)}
-                                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer"
-                                aria-label="Tutup"
+                                className="mt-4 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl cursor-pointer"
                             >
-                                <X size={18} />
+                                Mengerti
                             </button>
                         </div>
-
-                        <div className="text-sm text-slate-600 space-y-2.5">{children}</div>
-
-                        <button
-                            onClick={() => setBuka(false)}
-                            className="mt-4 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl cursor-pointer"
-                        >
-                            Saya Paham
-                        </button>
-                    </div>
-                </div>
-            )}
+                    </div>,
+                    document.body
+                )}
         </>
     );
 };
