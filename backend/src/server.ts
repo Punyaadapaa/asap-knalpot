@@ -17,7 +17,8 @@ const HARI = 24 * 60 * 60 * 1000; // one day in milliseconds
 // CORS: the Vite dev server runs on a different port, so the browser needs
 // these headers. Override with CORS_ORIGIN when the port changes.
 const CORS = {
-  "Access-Control-Allow-Origin": process.env.CORS_ORIGIN ?? "http://localhost:5172",
+  "Access-Control-Allow-Origin":
+    process.env.CORS_ORIGIN ?? "http://localhost:5172",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, X-Device-Id, Authorization",
   "Access-Control-Max-Age": "86400",
@@ -197,7 +198,8 @@ Bun.serve({
     const { pathname } = new URL(req.url);
     try {
       // Browser preflight. Must answer before any route check.
-      if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+      if (req.method === "OPTIONS")
+        return new Response(null, { status: 204, headers: CORS });
       // POST: only /api/lapor is allowed
       if (req.method === "POST" && pathname === "/api/lapor")
         return await lapor(req);

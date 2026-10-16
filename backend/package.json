@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "bun run index.ts",
+    "seed:demo": "bun run src/seed-demo.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
