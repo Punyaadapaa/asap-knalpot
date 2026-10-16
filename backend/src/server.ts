@@ -13,6 +13,8 @@ import type {
 
 const DATA = path.join(import.meta.dir, "../../data");
 const HARI = 24 * 60 * 60 * 1000; // one day in milliseconds
+const WIB_OFFSET = 7 * 60 * 60 * 1000; // adjust to WIB midnight for day boundaries
+
 
 // CORS: the Vite dev server runs on a different port, so the browser needs
 // these headers. Override with CORS_ORIGIN when the port changes.
@@ -47,9 +49,10 @@ function hitungLaporan(kec: string, dari: string, sampai: string): number {
 // shortcut: if previous week is 0, percent change is 0 and status is never "naik".
 // Undecided in PRD section 11.
 function ringkas(kec: string) {
-  const now = Date.now();
+  const now = Date.now() + WIB_OFFSET;
   const cur = hitungLaporan(kec, iso(now - 7 * HARI), iso(now + 1));
   const prev = hitungLaporan(kec, iso(now - 14 * HARI), iso(now - 7 * HARI));
+
   const perubahan = prev > 0 ? Math.round(((cur - prev) / prev) * 100) : 0;
   const naik = cur >= 5 && prev > 0 && cur - prev >= prev * 0.5;
   const status: StatusLokasi =
@@ -58,14 +61,15 @@ function ringkas(kec: string) {
 }
 
 // Daily counts for the last 7 days (one entry per day, zero if no reports)
-// shortcut: days are cut at UTC midnight, not WIB midnight (7 hours off).
+// shortcut: days are now cut at WIB midnight using WIB_OFFSET.
 function tren(kec: string): TrenLokasi {
-  const now = Date.now();
+  const now = Date.now() + WIB_OFFSET;
   const rows = db
     .query(
       "SELECT date(dibuat_pada) AS tgl, COUNT(*) AS n FROM laporan WHERE kecamatan_id = ? AND dibuat_pada >= ? GROUP BY tgl",
     )
     .all(kec, iso(now - 7 * HARI)) as { tgl: string; n: number }[];
+
   const per = new Map(rows.map((r) => [r.tgl, r.n]));
   const periode: TitikTren[] = [];
   for (let i = 6; i >= 0; i--) {
