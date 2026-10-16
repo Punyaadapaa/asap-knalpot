@@ -1,179 +1,188 @@
 # Kontrak API
 
-Base path: `/api`. Semua respons JSON. Tanggal memakai format ISO 8601.
+Base path `/api`. Semua respons JSON memakai bentuk amplop:
+
+```
+{ "status": "success", "data": ... }      // sukses
+{ "status": "error", "message": "..." }   // gagal
+```
+
+Tanggal memakai ISO 8601. Endpoint publik: `lokasi`, `gejala`, `lapor`, `peta`,
+`lokasi/:id/tren`. Dua endpoint dashboard (`dashboard`, `dashboard.csv`) hanya
+meminta token **kalau** env `DASHBOARD_TOKEN` di-set.
+
+---
+
+## Bentuk bersama: `LocationItem`
+
+Dipakai oleh `/api/lokasi`, `/api/lokasi/:id/tren`, `/api/peta` (`locations[]`),
+dan `/api/dashboard` (`kecamatan_list[]`).
+
+```
+{
+  "id": "kec-3471003",
+  "nama": "Gondokusuman",
+  "kota": "Yogyakarta",
+  "latitude": -7.7867439,
+  "longitude": 110.3809996,
+  "aqi": 95,                      // satu nilai untuk seluruh kota
+  "aqi_category": "Sedang",
+  "aqi_source": "stasiun",        // "stasiun" | "model" | "contoh"
+  "aqi_updated_at": "2026-10-16T19:00:00+07:00",
+  "rth_percentage": 23.351,
+  "total_reports_7d": 12,         // null jika < 3 (disembunyikan, privasi)
+  "previous_reports_7d": 6,
+  "change_percent": 100,
+  "status": "naik",               // "normal" | "naik" | "data_belum_cukup"
+  "privacy_hidden": false,
+  "daily_trend": [
+    { "date": "2026-10-10", "label": "Sab", "count": 1 }
+  ]
+}
+```
+
+- `total_reports_7d = null` → UI menampilkan "Data belum cukup".
+- `aqi_source` **wajib** ditampilkan di UI.
+- AQI & RTH adalah **satu nilai untuk seluruh kota** (Kota Yogyakarta tak punya
+  stasiun sendiri; nilainya dari stasiun BMKG terdekat via WAQI, ±8 km).
 
 ---
 
 ## 1. `GET /api/lokasi`
 
-Daftar 14 kecamatan Kota Yogyakarta beserta koordinat pusatnya.
-Sumber: `data/lokasi.json`.
+Daftar 14 kecamatan Kota Yogyakarta, tiap-tiap berupa `LocationItem`.
 
 ```
-[
-  { "id": "kec-3471001", "nama": "Danurejan",    "lat": -7.7931435, "lng": 110.3717869 },
-  { "id": "kec-3471003", "nama": "Gondokusuman", "lat": -7.7867439, "lng": 110.3809996 }
-]
+{ "status": "success", "data": [ { "id": "kec-3471001", "nama": "Danurejan", ... } ] }
 ```
-
----
 
 ## 2. `GET /api/gejala`
 
-Daftar gejala untuk dipilih pengguna (checkbox, bukan isian bebas).
+Daftar gejala untuk checkbox (bukan isian bebas).
 
 ```
-[
-  { "kode": "batuk",  "label": "Batuk" },
-  { "kode": "sesak",  "label": "Sesak napas" },
-  { "kode": "demam",  "label": "Demam" }
-]
+{ "status": "success", "data": [
+  { "id": "batuk", "nama": "Batuk", "icon": "😷", "is_emergency": false, "sort_order": 1 }
+] }
 ```
-
----
 
 ## 3. `POST /api/lapor`
 
-Header: `X-Device-Id: <uuid acak>` (dipakai untuk batas 1 laporan per perangkat
-per hari; disimpan sebagai hash, tanpa identitas).
+Header opsional: `X-Device-Id: <uuid acak>`.
 
-Body:
-
-- `kondisi` (opsional): `"membaik"` | `"stabil"` | `"memburuk"`.
-- `suhu_c` (opsional): angka 30–45.
-- `durasi_per_gejala` (opsional): durasi harian per kode gejala. Kalau tidak diisi,
-  dipakai `durasi_hari` untuk semua gejala.
-- `kelompok_rentan` (opsional): `true` untuk anak, lansia, atau ibu hamil.
-- `kondisi`, `suhu_c`, `durasi_per_gejala`, dan `kelompok_rentan` hanya dipakai
-  untuk menghitung triase. Keempatnya **tidak disimpan** ke database.
+- Kalau dikirim, dipakai untuk batas **1 laporan per perangkat per hari**
+  (disimpan sebagai hash; laporan kedua di hari yang sama dibalas `429`).
+- Kalau tidak dikirim, tidak ada batas harian (dipakai nilai acak), sehingga
+  demo bisa mengirim beberapa laporan dari satu mesin.
+- Tidak ada nama, NIK, nomor HP, atau koordinat presisi yang disimpan.
 
 Body:
 
 ```
-   { "lokasi_id": "kec-3471003", "gejala": ["batuk", "demam"],
-     "durasi_hari": 8, "durasi_per_gejala": { "batuk": 8, "demam": 1 },
-     "kondisi": "stabil", "suhu_c": 38.5, "kelompok_rentan": false }
+{
+  "location_id": "kec-3471003",
+  "symptoms": ["batuk", "demam"],
+  "duration_days": 4,
+
+  // opsional (PRD 6.4) -- dipakai aturan triase lanjutan:
+  "kondisi": "membaik",              // "membaik" | "stabil" | "memburuk"
+  "suhu_c": 38.5,                    // 30..45
+  "durasi_per_gejala": { "demam": 3 }, // hari per gejala, menimpa duration_days
+  "kelompok_rentan": true            // anak / lansia / ibu hamil
+}
 ```
+
+Field wajib: `location_id`, `symptoms`, `duration_days`. Sisanya opsional; kalau
+dikirim tapi tidak sah (mis. `suhu_c` 100, `kondisi` di luar daftar, atau
+`durasi_per_gejala` memuat kode gejala asing) → `422`. Frontend saat ini belum
+mengirim field opsional, jadi UI hanya memicu aturan 1, 2, dan 6.
 
 Respons:
 
 ```
-200 → { "ok": true, "triase": { "kategori": 2, "pesan": "...",
-           "saran": ["Istirahat", "Pakai masker"],
-           "catatan": "Ini cuma panduan awal, bukan hasil pemeriksaan dokter." } }
+200 → { "status": "success", "message": "Laporan gejala berhasil dicatat.",
+        "data": {
+          "report_id": 12,
+          "location": { "id": "kec-3471003", "nama": "Gondokusuman", "kota": "Yogyakarta" },
+          "symptoms": ["batuk", "demam"],
+          "duration_days": 4,
+          "triage": {
+            "level": "perlu_pemeriksaan",
+            "title": "PERLU PEMERIKSAAN",
+            "badge": "🟡 Perlu Pemeriksaan",
+            "color": "warning",
+            "description": "...",
+            "subtext": "Disarankan memeriksakan kondisi ke puskesmas atau rumah sakit.",
+            "recommendations": ["..."],
+            "actions": [{ "label": "Cari Fasilitas Kesehatan", "type": "modal", "target": "faskes_list", "primary": true }]
+          },
+          "created_at": "2026-10-16T12:34:56.000Z"
+        } }
 
-429 → { "ok": false, "error": "SUDAH_LAPOR_HARI_INI" }
-400 → { "ok": false, "error": "DATA_TIDAK_VALID" }
+422 → { "status": "error", "message": "Data laporan tidak valid." }
+429 → { "status": "error", "message": "Sudah ada laporan dari perangkat ini hari ini." }
 ```
 
-Aturan triase (diperiksa berurutan, yang pertama cocok dipakai):
-
-| # | Kondisi | Hari | Kode |
-|---|---|---|---|
-| 1 | Sesak napas berat, nyeri dada, bibir/kuku kebiruan, batuk darah, sulit bicara, kesadaran menurun | Kapan saja | 1 |
-| 2 | Sesak napas ringan–sedang | Kapan saja | 2 |
-| 3 | Demam tinggi (>38°C) | ≥3 hari | 2 |
-| 4 | Batuk atau demam, belum membaik | ≥4 hari | 2 |
-| 5 | Kelompok rentan + batuk, demam, pilek, atau sakit tenggorokan | — | 2 |
-| 6 | Selain di atas | — | 3 |
-
-Kode kategori: `1` gawat darurat, `2` perlu pemeriksaan, `3` ringan.
-
-Kode kategori triase: `1` gawat darurat, `2` perlu pemeriksaan, `3` ringan.
-
----
+`triage.level`: `gawat_darurat` | `perlu_pemeriksaan` | `ringan`
+(dari aturan di `backend/src/triase.ts`).
 
 ## 4. `GET /api/peta`
 
-Data **gejala per kecamatan** untuk peta. Hanya lapisan gejala; AQI & RTH
-tidak di sini karena keduanya hanya tersedia di level kota (lihat endpoint 5).
+Data peta: daftar `LocationItem`, daftar lapisan, dan legenda.
 
 ```
-[
-  { "lokasi_id": "kec-3471003",
-    "nama": "Gondokusuman",
-    "lat": -7.7867439,
-    "lng": 110.3809996,
-    "laporan_7hari": 12,
-    "status": "naik" }
-]
+{ "status": "success", "data": {
+    "locations": [ { "id": "kec-3471003", ... } ],
+    "layers": [
+      { "id": "gejala", "name": "Laporan Gejala", "description": "..." },
+      { "id": "aqi",    "name": "Kualitas Udara (AQI)", "description": "..." },
+      { "id": "rth",    "name": "Ruang Hijau (RTH)", "description": "..." }
+    ],
+    "legend": { "gejala": [ ... ], "aqi": [ ... ], "rth": [ ... ] }
+} }
 ```
 
-- `laporan_7hari` bernilai `null` jika jumlah laporan < 3 (disembunyikan, alasan privasi).
-- `status`: `"normal"` | `"naik"` | `"tersembunyi"`.
+## 5. `GET /api/lokasi/:id/tren`
 
----
-
-## 5. `GET /api/lingkungan`
-
-Kualitas udara (AQI) dan ruang hijau (RTH) untuk **seluruh kota** — satu nilai,
-bukan per kecamatan. Sumber: `data/lingkungan.json`.
+Tren 7 hari satu kecamatan, dikembalikan sebagai satu `LocationItem`
+(`daily_trend` berisi 7 titik harian).
 
 ```
-{
-  "aqi": {
-    "nilai": 124,
-    "kategori": "Tidak Sehat untuk Kelompok Sensitif",
-    "polutan_dominan": "pm2.5",
-    "sumber": "stasiun",
-    "stasiun": { "nama": "Sleman, Indonesia", "penyelenggara": "BMKG", "jarak_km": 7 },
-    "diperbarui": "2026-10-13T21:00:00+07:00"
-  },
-  "rth": {
-    "total_persen": 23.351,
-    "publik_persen": 8.063,
-    "privat_persen": 15.288,
-    "target_uu_persen": 30,
-    "sumber": "Pemerintah Kota Yogyakarta, Mar 2026"
-  }
-}
+{ "status": "success", "data": { "id": "kec-3471003", "daily_trend": [ { "date": "2026-10-10", "label": "Sab", "count": 1 } ], ... } }
+
+404 → { "status": "error", "message": "Wilayah tidak ditemukan." }
 ```
 
-- `aqi.sumber`: `"stasiun"` | `"model"` | `"contoh"` — wajib ditampilkan di UI.
-- Kota Yogyakarta tidak memiliki stasiun pemantau sendiri; nilai diambil dari
-  stasiun terdekat di Sleman (±7 km).
+## 6. `GET /api/dashboard`
 
----
-
-## 6. `GET /api/lokasi/:id/tren`
-
-Tren laporan harian satu kecamatan.
+Ringkasan untuk puskesmas/pengelola.
 
 ```
-{ "lokasi_id": "kec-3471003",
-  "periode": [ { "tanggal": "2026-10-08", "jumlah": 1 } ],
-  "perubahan_persen": 60 }
+{ "status": "success", "data": {
+    "summary": {
+      "total_laporan": 24, "wilayah_meningkat": 1,
+      "perubahan_mingguan": 33, "area_terpantau": 14
+    },
+    "trend_chart": [ { "date": "2026-10-10", "label": "Sab, 10 Okt", "count": 3 } ],
+    "kecamatan_list": [ { "id": "kec-3471003", ... } ],
+    "last_updated": "2026-10-16T12:34:56.000Z"
+} }
 ```
 
----
+Auth: kalau `DASHBOARD_TOKEN` di-set, wajib `Authorization: Bearer <token>`
+(selain itu balas `401`). Kalau kosong, terbuka untuk demo.
 
-## 7. `GET /api/dashboard`
+## 7. `GET /api/dashboard.csv`
 
-Ringkasan per kecamatan untuk dashboard pengelola/puskesmas.
-
-```
-[
-  { "lokasi_id": "kec-3471003",
-    "nama": "Gondokusuman",
-    "laporan_7hari": 12,
-    "laporan_7hari_sebelumnya": 6,
-    "perubahan_persen": 100,
-    "status": "naik" }
-]
-```
-
----
-
-## 8. `GET /api/dashboard.csv`
-
-Ekspor tabel dashboard sebagai CSV, kolom sama dengan endpoint 7.
+Ekspor tabel dashboard sebagai CSV (`text/csv`, dibaca Excel dengan UTF-8).
 
 ---
 
 ## Aturan bersama
 
-- `laporan_7hari = null` → UI menampilkan "Data belum cukup".
-- `aqi.sumber` wajib ditampilkan di UI.
-- Tanggal memakai format ISO 8601.
-- AQI & RTH **tidak** tersedia per kecamatan; keduanya satu angka untuk kota.
-- Ambang kenaikan: ≥5 laporan dalam 7 hari **dan** naik ≥50% dibanding 7 hari sebelumnya.
+- Ambang kenaikan: **≥ 5 laporan dalam 7 hari DAN naik ≥ 50%** dibanding 7 hari sebelumnya.
+- `total_reports_7d < 3` → disembunyikan (`null`, status `data_belum_cukup`).
+- Batas hari memakai **WIB**, bukan UTC.
+- AQI & RTH tidak tersedia per kecamatan; keduanya satu angka untuk kota.
+- Nilai AQI diambil dari stasiun WAQI (BMKG) lewat `bun run aqi`.
+- Rate limit `/api/lapor`: 30 permintaan/menit per IP (env `RATE_LIMIT_PER_MIN`).

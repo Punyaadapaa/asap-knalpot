@@ -1,15 +1,15 @@
 {
   "aqi": {
-    "nilai": 93,
+    "nilai": 95,
     "kategori": "Sedang",
-    "polutan_dominan": "pm2.5",
+    "polutan_dominan": "pm25",
     "sumber": "stasiun",
     "stasiun": {
       "nama": "Sleman, Indonesia",
       "penyelenggara": "BMKG",
-      "jarak_km": 7
+      "jarak_km": 8
     },
-    "diperbarui": "2026-10-15T19:00:00+07:00"
+    "diperbarui": "2026-10-16T19:00:00+07:00"
   },
   "rth": {
     "total_persen": 23.351,
