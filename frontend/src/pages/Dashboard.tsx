@@ -75,7 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 <h1 className="text-base font-black text-slate-900 leading-tight">
                                     InfluenzaAware
                                 </h1>
-                                <span className="bg-teal-50 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-teal-200">
+                                <span className="hidden sm:inline-block bg-teal-50 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-teal-200">
                                     Puskesmas & Pengelola
                                 </span>
                             </div>
@@ -95,10 +95,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         </button>
                         <button
                             onClick={onSwitchToWarga}
-                            className="flex items-center space-x-1.5 py-2 px-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                            title="Kembali ke mode warga"
+                            className="flex items-center space-x-1.5 py-2 px-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
                         >
                             <HomeIcon size={14} />
-                            <span>Mode Warga</span>
+                            <span className="hidden sm:inline">Mode Warga</span>
                         </button>
                     </div>
                 </div>
@@ -257,16 +258,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 </p>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                                 {/* Search input */}
-                                <div className="relative">
+                                <div className="relative w-full sm:w-auto">
                                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input
                                         type="text"
                                         placeholder="Cari kecamatan..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 text-slate-800"
+                                        className="w-full sm:w-auto pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 text-slate-800"
                                     />
                                 </div>
 
@@ -310,7 +311,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                         {/* Table Element */}
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left text-xs">
+                            <table className="w-full min-w-[760px] text-left text-xs">
                                 <thead className="bg-slate-50/80 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
                                     <tr>
                                         <th className="py-3 px-4">Kecamatan</th>

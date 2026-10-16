@@ -19,6 +19,33 @@ body {
     background-color: #f8fafc;
     color: #0f172a;
     -webkit-tap-highlight-color: transparent;
+    /* Dukungan semua HP: tidak ada geser ke samping, dan ukuran teks tidak
+       "digelembungkan" oleh iOS saat layar diputar. */
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* iOS otomatis nge-zoom kalau field di bawah 16px. Ini mencegahnya. */
+@media (max-width: 640px) {
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+/* Safe area: notch iPhone (atas) dan home indicator (bawah). */
+.pt-safe {
+    padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+}
+
+.pb-safe {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.pb-safe-lg {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Custom smooth animations & map pulses */

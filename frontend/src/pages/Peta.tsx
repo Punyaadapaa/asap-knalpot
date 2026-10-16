@@ -21,7 +21,7 @@ export const Peta: React.FC<PetaProps> = ({
     onBack,
     isDesktop = false,
 }) => {
-    const [activeLayer, setActiveLayer] = useState<'gejala' | 'aqi' | 'rth'>('gejala');
+    const [activeLayer, setActiveLayer] = useState<'gejala' | 'aqi'>('gejala');
     const [searchKecamatan, setSearchKecamatan] = useState<string>('');
 
     const filteredLocations = locations.filter((l) =>

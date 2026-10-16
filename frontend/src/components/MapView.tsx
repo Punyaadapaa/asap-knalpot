@@ -4,7 +4,6 @@ import 'leaflet/dist/leaflet.css';
 import { formatPersen } from '../format';
 import {
     Wind,
-    Trees,
     Activity,
     ChevronRight,
     Lock,
@@ -20,8 +19,8 @@ import { LocationItem } from '../types';
 
 interface MapViewProps {
     locations: LocationItem[];
-    activeLayer: 'gejala' | 'aqi' | 'rth';
-    onLayerChange: (layer: 'gejala' | 'aqi' | 'rth') => void;
+    activeLayer: 'gejala' | 'aqi';
+    onLayerChange: (layer: 'gejala' | 'aqi') => void;
     selectedLocation: LocationItem | null;
     onSelectLocation: (loc: LocationItem) => void;
     onViewDetail: (id: string) => void;
@@ -56,11 +55,6 @@ export const MapView: React.FC<MapViewProps> = ({
             if (loc.aqi <= 100) return '#f59e0b';
             if (loc.aqi <= 199) return '#ea580c';
             return '#8b5cf6';
-        }
-        if (activeLayer === 'rth') {
-            if (loc.rth_percentage >= 20) return '#059669';
-            if (loc.rth_percentage >= 15) return '#0d9488';
-            return '#d97706';
         }
         return '#0d9488';
     };
@@ -165,10 +159,8 @@ export const MapView: React.FC<MapViewProps> = ({
             let badgeText = '';
             if (activeLayer === 'gejala') {
                 badgeText = loc.privacy_hidden ? '<3' : `${loc.total_reports_7d ?? '•'}`;
-            } else if (activeLayer === 'aqi') {
-                badgeText = `${loc.aqi}`;
             } else {
-                badgeText = `${Math.round(loc.rth_percentage)}%`;
+                badgeText = `${loc.aqi}`;
             }
 
             const isPulsing = activeLayer === 'gejala' && loc.status === 'naik';
@@ -333,7 +325,7 @@ export const MapView: React.FC<MapViewProps> = ({
 
     return (
         <div className="space-y-3">
-            {/* Layer Switcher Tabs (Gejala / AQI / RTH) */}
+            {/* Layer Switcher Tabs (Gejala / AQI) */}
             <div className="flex bg-slate-200/80 p-1 rounded-2xl shadow-inner">
                 <button
                     onClick={() => onLayerChange('gejala')}
@@ -356,17 +348,6 @@ export const MapView: React.FC<MapViewProps> = ({
                 >
                     <Wind size={14} className={activeLayer === 'aqi' ? 'text-teal-600' : ''} />
                     <span>AQI</span>
-                </button>
-                <button
-                    onClick={() => onLayerChange('rth')}
-                    className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        activeLayer === 'rth'
-                            ? 'bg-white text-teal-800 shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                >
-                    <Trees size={14} className={activeLayer === 'rth' ? 'text-teal-600' : ''} />
-                    <span>RTH</span>
                 </button>
             </div>
 

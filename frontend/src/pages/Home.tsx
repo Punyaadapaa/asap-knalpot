@@ -621,23 +621,23 @@ export const Home: React.FC<HomeProps> = ({
     return (
         <div className="space-y-4 pb-6 animate-in fade-in duration-150">
             {/* Mobile Header */}
-            <div className="flex items-center justify-between pt-1">
-                <div>
+            <div className="flex items-center justify-between gap-2 pt-1">
+                <div className="min-w-0">
                     <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-black shadow-xs">
+                        <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-black shadow-xs shrink-0">
                             IA
                         </div>
-                        <h1 className="text-lg font-black tracking-tight text-slate-900">
+                        <h1 className="text-lg font-black tracking-tight text-slate-900 truncate">
                             InfluenzaAware
                         </h1>
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium">
+                    <p className="text-[11px] text-slate-500 font-medium truncate">
                         Pantau Udara. Kenali Gejala. Jaga Kota.
                     </p>
                 </div>
                 <button
                     onClick={onSwitchToDashboard}
-                    className="flex items-center space-x-1 py-1.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer border border-slate-200/80"
+                    className="shrink-0 flex items-center space-x-1 py-1.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer border border-slate-200/80"
                     title="Akses Dashboard Pengelola / Puskesmas"
                 >
                     <Building2 size={14} className="text-teal-700" />
