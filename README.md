@@ -1,4 +1,4 @@
-# Asap-Kenalpot
+# Asap-Kenalpot/Influenza Aware
 
 Pantau Udara. Kenali Gejala. Jaga Kota.
 
