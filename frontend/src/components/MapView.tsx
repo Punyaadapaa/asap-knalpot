@@ -39,17 +39,23 @@ export const MapView: React.FC<MapViewProps> = ({
     const mapInstanceRef = useRef<L.Map | null>(null);
     const tileLayerRef = useRef<L.TileLayer | null>(null);
     const markersLayerRef = useRef<L.LayerGroup | null>(null);
+    const zonesLayerRef = useRef<L.LayerGroup | null>(null);
     const circleOverlayRef = useRef<L.Circle | null>(null);
 
     const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>('streets');
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+    // Warna laporan gejala: hijau = stabil, merah = tren naik, abu = data belum cukup
+    const getGejalaColor = (loc: LocationItem) => {
+        if (loc.privacy_hidden || loc.status === 'data_belum_cukup') return '#94a3b8';
+        if (loc.status === 'naik') return '#dc2626';
+        return '#16a34a';
+    };
+
     // Color theme helper
     const getPinColor = (loc: LocationItem) => {
         if (activeLayer === 'gejala') {
-            if (loc.privacy_hidden || loc.status === 'data_belum_cukup') return '#64748b';
-            if (loc.status === 'naik') return '#ea580c';
-            return '#0d9488';
+            return getGejalaColor(loc);
         }
         if (activeLayer === 'aqi') {
             if (loc.aqi <= 50) return '#10b981';
@@ -96,6 +102,9 @@ export const MapView: React.FC<MapViewProps> = ({
         L.control
             .attribution({ position: 'bottomright', prefix: false })
             .addTo(map);
+
+        const zonesLayer = L.layerGroup().addTo(map);
+        zonesLayerRef.current = zonesLayer;
 
         const markersLayer = L.layerGroup().addTo(map);
         markersLayerRef.current = markersLayer;
@@ -157,6 +166,26 @@ export const MapView: React.FC<MapViewProps> = ({
 
         markersGroup.clearLayers();
 
+        // Zona wilayah: hanya pada lapisan gejala (hijau = stabil, merah = laporan naik)
+        const zonesGroup = zonesLayerRef.current;
+        zonesGroup?.clearLayers();
+        if (activeLayer === 'gejala' && zonesGroup) {
+            locations.forEach((loc) => {
+                const belumCukup = loc.privacy_hidden || loc.status === 'data_belum_cukup';
+                const warna = getGejalaColor(loc);
+                L.circle([loc.latitude, loc.longitude], {
+                    radius: 820,
+                    color: warna,
+                    weight: belumCukup ? 1 : 1.5,
+                    opacity: belumCukup ? 0.25 : 0.45,
+                    fillColor: warna,
+                    fillOpacity: belumCukup ? 0.06 : loc.status === 'naik' ? 0.24 : 0.16,
+                    dashArray: belumCukup ? '3, 5' : undefined,
+                    interactive: false,
+                }).addTo(zonesGroup);
+            });
+        }
+
         locations.forEach((loc) => {
             const isSelected = selectedLocation?.id === loc.id;
             const pinColor = getPinColor(loc);
@@ -180,7 +209,7 @@ export const MapView: React.FC<MapViewProps> = ({
                 }" style="transform-origin: bottom center;">
                     ${
                         isPulsing
-                            ? `<span class="absolute -top-1.5 w-11 h-11 rounded-full bg-orange-500/40 animate-ping pointer-events-none"></span>`
+                            ? `<span class="absolute -top-1.5 w-11 h-11 rounded-full bg-red-500/40 animate-ping pointer-events-none"></span>`
                             : ''
                     }
                     
@@ -195,13 +224,13 @@ export const MapView: React.FC<MapViewProps> = ({
                         </svg>
 
                         <!-- Inner Badge Content -->
-                        <div class="absolute top-2 w-5 h-5 rounded-full bg-white/95 text-slate-900 font-extrabold text-[10px] flex items-center justify-center shadow-xs">
+                        <div class="absolute top-2 w-5 h-5 rounded-full bg-white/95 text-slate-900 font-extrabold text-3xs flex items-center justify-center shadow-xs">
                             ${badgeText}
                         </div>
                     </div>
 
                     <!-- Label Pill Below Pin -->
-                    <div class="mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight shadow-md border pointer-events-none whitespace-nowrap transition-colors ${
+                    <div class="mt-0.5 px-2 py-0.5 rounded-full text-3xs font-bold tracking-tight shadow-md border pointer-events-none whitespace-nowrap transition-colors ${
                         isSelected
                             ? 'bg-slate-900 text-white border-slate-700'
                             : 'bg-white/95 text-slate-800 border-slate-200/90'
@@ -227,10 +256,10 @@ export const MapView: React.FC<MapViewProps> = ({
             // Rich Google Maps-style popup
             const statusLabel =
                 loc.status === 'naik'
-                    ? '<span class="text-orange-600 bg-orange-50 font-bold px-2 py-0.5 rounded-full text-[10px]">Laporan Naik ↑</span>'
+                    ? '<span class="text-red-600 bg-red-50 font-bold px-2 py-0.5 rounded-full text-3xs">Laporan Naik</span>'
                     : loc.status === 'normal'
-                    ? '<span class="text-emerald-700 bg-emerald-50 font-bold px-2 py-0.5 rounded-full text-[10px]">Normal ✓</span>'
-                    : '<span class="text-slate-500 bg-slate-100 font-bold px-2 py-0.5 rounded-full text-[10px]">Privasi (<3)</span>';
+                    ? '<span class="text-green-700 bg-green-50 font-bold px-2 py-0.5 rounded-full text-3xs">Normal</span>'
+                    : '<span class="text-slate-500 bg-slate-100 font-bold px-2 py-0.5 rounded-full text-3xs">Privasi (<3)</span>';
 
             const popupContent = document.createElement('div');
             popupContent.className = 'p-3 bg-white min-w-[200px] text-slate-900';
@@ -239,9 +268,9 @@ export const MapView: React.FC<MapViewProps> = ({
                     <h4 class="font-extrabold text-sm text-slate-900 leading-tight">${loc.nama}</h4>
                     ${statusLabel}
                 </div>
-                <div class="text-[11px] text-slate-500 mb-2">Kota Yogyakarta</div>
+                <div class="text-2xs text-slate-500 mb-2">Kota Yogyakarta</div>
 
-                <div class="grid grid-cols-3 gap-1.5 p-2 bg-slate-50 rounded-xl text-center text-[10px] mb-2.5 border border-slate-100">
+                <div class="grid grid-cols-3 gap-1.5 p-2 bg-slate-50 rounded-xl text-center text-3xs mb-2.5 border border-slate-100">
                     <div>
                         <span class="text-slate-400 block font-medium">Laporan</span>
                         <strong class="text-slate-800 font-bold">${loc.privacy_hidden ? '<3' : (loc.total_reports_7d ?? '-')}</strong>
@@ -373,7 +402,7 @@ export const MapView: React.FC<MapViewProps> = ({
             {/* Interactive Leaflet Map Container */}
             <div
                 className={`relative rounded-2xl overflow-hidden shadow-lg border border-slate-200/90 transition-all duration-300 ${
-                    isExpanded ? 'h-[500px]' : 'h-[360px]'
+                    isExpanded ? 'h-125' : 'h-90'
                 }`}
             >
                 {/* Real Interactive Map Canvas */}
@@ -445,7 +474,7 @@ export const MapView: React.FC<MapViewProps> = ({
                 </div>
 
                 {/* Floating Bottom Left: Yogyakarta Region Indicator */}
-                <div className="absolute bottom-2 left-3 z-[1000] bg-white/90 backdrop-blur-xs text-[11px] font-semibold text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center space-x-1.5 pointer-events-none">
+                <div className="absolute bottom-2 left-3 z-[1000] bg-white/90 backdrop-blur-xs text-2xs font-semibold text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center space-x-1.5 pointer-events-none">
                     <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
                     <span>Kota Yogyakarta ({locations.length} Kecamatan)</span>
                 </div>
@@ -467,7 +496,7 @@ export const MapView: React.FC<MapViewProps> = ({
                                 <h3 className="font-extrabold text-slate-900 text-base leading-tight">
                                     {selectedLocation.nama}
                                 </h3>
-                                <span className="text-[11px] text-slate-400 font-medium">
+                                <span className="text-2xs text-slate-400 font-medium">
                                     Kota Yogyakarta
                                 </span>
                             </div>
@@ -480,7 +509,7 @@ export const MapView: React.FC<MapViewProps> = ({
 
                     <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-100 text-center">
                         <div className="bg-slate-50 p-2 rounded-xl">
-                            <span className="text-[10px] uppercase text-slate-400 font-semibold block">
+                            <span className="text-3xs uppercase text-slate-400 font-semibold block">
                                 Laporan 7 Hari
                             </span>
                             {selectedLocation.privacy_hidden ? (
@@ -499,7 +528,7 @@ export const MapView: React.FC<MapViewProps> = ({
                         </div>
 
                         <div className="bg-slate-50 p-2 rounded-xl">
-                            <span className="text-[10px] uppercase text-slate-400 font-semibold block">
+                            <span className="text-3xs uppercase text-slate-400 font-semibold block">
                                 Kualitas Udara
                             </span>
                             <span className="text-sm font-black text-slate-800">
@@ -508,7 +537,7 @@ export const MapView: React.FC<MapViewProps> = ({
                         </div>
 
                         <div className="bg-slate-50 p-2 rounded-xl">
-                            <span className="text-[10px] uppercase text-slate-400 font-semibold block">
+                            <span className="text-3xs uppercase text-slate-400 font-semibold block">
                                 Ruang Hijau
                             </span>
                             <span className="text-sm font-black text-emerald-700">
