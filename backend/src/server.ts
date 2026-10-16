@@ -14,8 +14,18 @@ import type {
 const DATA = path.join(import.meta.dir, "../../data");
 const HARI = 24 * 60 * 60 * 1000; // one day in milliseconds
 
-// Small helpers: JSON response and ISO date string
-const json = (body: unknown, status = 200) => Response.json(body, { status });
+// CORS: the Vite dev server runs on a different port, so the browser needs
+// these headers. Override with CORS_ORIGIN when the port changes.
+const CORS = {
+  "Access-Control-Allow-Origin": process.env.CORS_ORIGIN ?? "http://localhost:5172",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-Device-Id, Authorization",
+  "Access-Control-Max-Age": "86400",
+};
+
+// Small helpers: JSON response and ISO date string. Every JSON reply carries CORS.
+const json = (body: unknown, status = 200) =>
+  Response.json(body, { status, headers: CORS });
 const iso = (ms: number) => new Date(ms).toISOString();
 type Kec = { id: string; nama: string; lat: number; lng: number };
 
@@ -186,6 +196,8 @@ Bun.serve({
   async fetch(req) {
     const { pathname } = new URL(req.url);
     try {
+      // Browser preflight. Must answer before any route check.
+      if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
       // POST: only /api/lapor is allowed
       if (req.method === "POST" && pathname === "/api/lapor")
         return await lapor(req);
@@ -257,6 +269,7 @@ Bun.serve({
         ].join("\n");
         return new Response(csv, {
           headers: {
+            ...CORS,
             "Content-Type": "text/csv; charset=utf-8",
             "Content-Disposition": 'attachment; filename="dashboard.csv"',
           },
