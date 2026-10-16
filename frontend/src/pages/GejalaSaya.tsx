@@ -66,8 +66,8 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
             {!isDesktop && (
                 <div className="flex items-center justify-between pt-1">
                     <div>
-                        <h1 className="text-xl font-black text-slate-900 flex items-center space-x-2">
-                            <span>🩺</span>
+                        <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                            <UserCheck size={20} className="text-teal-700" />
                             <span>Gejala Saya</span>
                         </h1>
                         <p className="text-[11px] text-slate-500 font-medium">
@@ -144,9 +144,9 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
 
             {/* Empty state if no records */}
             {records.length === 0 ? (
-                <div className="bg-white rounded-3xl p-12 border border-slate-200/90 text-center space-y-4 max-w-xl mx-auto shadow-xs my-8">
-                    <div className="w-16 h-16 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center mx-auto text-3xl">
-                        🩺
+                <div className="bg-white rounded-2xl p-12 border border-slate-200/90 text-center space-y-4 max-w-xl mx-auto shadow-xs my-8">
+                    <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center mx-auto">
+                        <UserCheck size={26} />
                     </div>
                     <div>
                         <h3 className="font-extrabold text-slate-900 text-lg">Belum Ada Riwayat Gejala</h3>
@@ -178,7 +178,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
                         return (
                             <div
                                 key={rec.id}
-                                className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between space-y-4 transition-all hover:shadow-lg hover:border-slate-300"
+                                className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between space-y-4 transition-all hover:shadow-lg hover:border-slate-300"
                             >
                                 <div className="space-y-3.5">
                                     <div className="flex items-center justify-between">
@@ -196,11 +196,11 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
                                                     : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                                             }`}
                                         >
-                                            {rec.triage?.badge || '🟢 Gejala Ringan'}
+                                            {rec.triage?.badge || 'Gejala Ringan'}
                                         </span>
                                     </div>
 
-                                    <div className="flex items-center space-x-2 text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
                                         <MapPin size={15} className="text-teal-600 shrink-0" />
                                         <span>Wilayah: <strong>{rec.location_nama}</strong></span>
                                         <span className="text-slate-400">·</span>
@@ -219,7 +219,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
                                                 return (
                                                     <span
                                                         key={symId}
-                                                        className="inline-flex items-center space-x-1 px-3 py-1 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700"
+                                                        className="inline-flex items-center gap-1 text-xs font-medium text-slate-600"
                                                     >
                                                         <span>{meta.icon}</span>
                                                         <span>{meta.nama}</span>

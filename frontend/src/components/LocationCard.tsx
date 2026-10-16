@@ -20,7 +20,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
             <div className="flex items-center justify-between bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-xs transition-all">
                 <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-700">
-                        <MapPin size={22} className="animate-bounce" />
+                        <MapPin size={22} />
                     </div>
                     <div>
                         <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">

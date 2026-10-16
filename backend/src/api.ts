@@ -242,7 +242,7 @@ const TRIASE_DETAIL = {
   gawat_darurat: {
     level: "gawat_darurat",
     title: "GAWAT DARURAT",
-    badge: "🔴 Gawat Darurat",
+    badge: "Gawat Darurat",
     color: "danger",
     description:
       "Laporan menunjukkan gejala pernapasan yang membutuhkan penanganan segera.",
@@ -265,7 +265,7 @@ const TRIASE_DETAIL = {
   perlu_pemeriksaan: {
     level: "perlu_pemeriksaan",
     title: "PERLU PEMERIKSAAN",
-    badge: "🟡 Perlu Pemeriksaan",
+    badge: "Perlu Pemeriksaan",
     color: "warning",
     description:
       "Laporan menunjukkan gejala pernapasan yang memerlukan evaluasi tenaga medis.",
@@ -293,7 +293,7 @@ const TRIASE_DETAIL = {
   ringan: {
     level: "ringan",
     title: "GEJALA RINGAN",
-    badge: "🟢 Gejala Ringan",
+    badge: "Gejala Ringan",
     color: "success",
     description:
       "Berdasarkan laporan gejala, kamu dapat melakukan perawatan mandiri.",

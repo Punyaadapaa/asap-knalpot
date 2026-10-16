@@ -78,7 +78,7 @@ export const Peta: React.FC<PetaProps> = ({
                     <MapLegend activeLayer={activeLayer} />
 
                     {/* Kecamatan list quick-pick */}
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                         <div className="p-4 border-b border-slate-100 space-y-3">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">

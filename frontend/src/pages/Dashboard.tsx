@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { formatPersen } from '../format';
 import {
     Activity,
     TrendingUp,
@@ -392,7 +393,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                                                     <td className="py-3.5 px-4">
                                                         <span className="font-bold text-emerald-800">
-                                                            {loc.rth_percentage}%
+                                                            {formatPersen(loc.rth_percentage)}
                                                         </span>
                                                     </td>
 

@@ -22,7 +22,7 @@ export const TriageResult: React.FC<TriageResultProps> = ({
     const isGawatDarurat = triage.level === 'gawat_darurat';
 
     return (
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm max-w-md mx-auto text-center animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm max-w-md mx-auto text-center animate-in fade-in zoom-in-95 duration-200">
             {/* Header Success Tag */}
             <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-800 text-xs font-bold mb-4">
                 <CheckCircle2 size={14} className="text-teal-600" />
@@ -32,18 +32,18 @@ export const TriageResult: React.FC<TriageResultProps> = ({
             {/* Level Symbol & Title */}
             <div className="my-2">
                 {isRingan && (
-                    <div className="w-16 h-16 rounded-3xl bg-emerald-100/80 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-xs">
-                        <span className="text-3xl">🟢</span>
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+                        <CheckCircle2 size={28} />
                     </div>
                 )}
                 {isPerluPemeriksaan && (
-                    <div className="w-16 h-16 rounded-3xl bg-amber-100/80 text-amber-600 flex items-center justify-center mx-auto mb-3 shadow-xs">
-                        <span className="text-3xl">🟡</span>
+                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3">
+                        <AlertTriangle size={28} />
                     </div>
                 )}
                 {isGawatDarurat && (
-                    <div className="w-16 h-16 rounded-3xl bg-rose-100/80 text-rose-600 flex items-center justify-center mx-auto mb-3 shadow-xs animate-pulse">
-                        <span className="text-3xl">🔴</span>
+                    <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3">
+                        <AlertOctagon size={28} />
                     </div>
                 )}
 
@@ -69,7 +69,7 @@ export const TriageResult: React.FC<TriageResultProps> = ({
             </p>
 
             {/* Recommendations List (Section 10.1) */}
-            <div className="my-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-2">
+            <div className="my-4 py-4 border-y border-slate-200 text-left space-y-2">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
                     Arahan Tindakan:
                 </span>
@@ -170,15 +170,15 @@ export const TriageResult: React.FC<TriageResultProps> = ({
                             <div className="space-y-2.5 text-xs text-slate-600">
                                 <p className="font-medium text-slate-800">Fasilitas Kesehatan Terdekat (Yogyakarta):</p>
                                 <div className="space-y-2">
-                                    <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div className="py-2.5">
                                         <strong className="block text-slate-900">Puskesmas Gondokusuman I & II</strong>
                                         <span className="text-[11px] text-slate-500">Layanan Umum & Pemeriksaan Saluran Pernapasan</span>
                                     </div>
-                                    <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div className="py-2.5">
                                         <strong className="block text-slate-900">Puskesmas Jetis</strong>
                                         <span className="text-[11px] text-slate-500">Jl. Pasiraman No.9, Jetis</span>
                                     </div>
-                                    <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div className="py-2.5">
                                         <strong className="block text-slate-900">RS Pratama Kota Yogyakarta</strong>
                                         <span className="text-[11px] text-slate-500">Mergangsan, Yogyakarta</span>
                                     </div>

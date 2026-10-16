@@ -4,6 +4,7 @@ import { LocationItem } from '../types';
 import { fetchLokasiTren } from '../api';
 import { TrendChart } from '../components/TrendChart';
 import { PrivacyCard } from '../components/PrivacyCard';
+import { formatPersen } from '../format';
 
 interface DetailLokasiProps {
     locationId: string;
@@ -211,7 +212,7 @@ export const DetailLokasi: React.FC<DetailLokasiProps> = ({
                                     Ruang Terbuka Hijau (RTH)
                                 </span>
                                 <div className="text-xl font-black text-emerald-800">
-                                    {location.rth_percentage}%
+                                    {formatPersen(location.rth_percentage)}
                                 </div>
                             </div>
                         </div>

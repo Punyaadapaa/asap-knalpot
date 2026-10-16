@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { Wind, Info, X } from 'lucide-react';
+import React from 'react';
+import { Wind } from 'lucide-react';
 import { LocationItem } from '../types';
+import { InfoModal } from './InfoModal';
 
 interface AQICardProps {
     location: LocationItem;
 }
 
 export const AQICard: React.FC<AQICardProps> = ({ location }) => {
-    const [showInfoModal, setShowInfoModal] = useState(false);
-
     // Color theme helper
     const getAQITheme = (aqi: number) => {
         if (aqi <= 50) {
@@ -57,91 +56,58 @@ export const AQICard: React.FC<AQICardProps> = ({ location }) => {
         : '08:00';
 
     return (
-        <>
-            <div className={`rounded-2xl p-5 border ${theme.border} ${theme.bg} shadow-sm transition-all duration-300 relative overflow-hidden`}>
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                        <Wind className={theme.text} size={20} />
-                        <span className="text-xs font-bold tracking-wider uppercase text-slate-600">
-                            Kualitas Udara
-                        </span>
-                    </div>
-                    <button
-                        onClick={() => setShowInfoModal(true)}
-                        className="text-slate-500 hover:text-slate-800 text-xs flex items-center space-x-1 bg-white/80 backdrop-blur-xs px-2.5 py-1 rounded-full border border-slate-200/80 cursor-pointer transition-colors"
-                        title="Tentang data"
-                    >
-                        <Info size={13} />
-                        <span>Tentang data</span>
-                    </button>
+        <div className={`rounded-2xl p-5 border ${theme.border} ${theme.bg} shadow-sm transition-all duration-300 relative overflow-hidden`}>
+            <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                    <Wind className={theme.text} size={20} />
+                    <span className="text-xs font-bold tracking-wider uppercase text-slate-600">
+                        Kualitas Udara
+                    </span>
                 </div>
+                <InfoModal title="Tentang Data Kualitas Udara">
+                    <p>
+                        Data kualitas udara (AQI) ditampilkan secara transparan untuk memberikan konteks lingkungan di sekitarmu.
+                    </p>
+                    {location.aqi_source.toLowerCase().includes('model') ? (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs">
+                            <strong>Catatan Sumber Model:</strong> Data merupakan estimasi/model matematis, bukan hasil pengukuran sensor langsung dari stasiun pemantau.
+                        </div>
+                    ) : (
+                        <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs">
+                            <strong>Stasiun Resmi:</strong> Data diukur langsung oleh sensor stasiun pemantau lingkungan fisik.
+                        </div>
+                    )}
+                    <p className="text-xs text-slate-500">
+                        Angka AQI bertujuan memberikan kesadaran perlindungan diri seperti penggunaan masker atau pembatasan aktivitas fisik berat di luar ruangan.
+                    </p>
+                    <p className="text-xs text-slate-500">
+                        Nilainya berlaku untuk wilayah Kota Yogyakarta, jadi sama di setiap kecamatan.
+                    </p>
+                </InfoModal>
+            </div>
 
-                <div className="flex flex-col items-center justify-center my-3 text-center">
-                    <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase">
-                        AQI
-                    </span>
-                    <div className={`text-5xl font-extrabold tracking-tight ${theme.text} my-1`}>
-                        {location.aqi}
-                    </div>
-                    <div className={`inline-flex items-center px-3.5 py-1 rounded-full text-sm font-bold ${theme.badgeBg} ${theme.badgeText}`}>
-                        {location.aqi_category}
-                    </div>
+            <div className="flex flex-col items-center justify-center my-3 text-center">
+                <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase">
+                    AQI
+                </span>
+                <div className={`text-5xl font-extrabold tracking-tight ${theme.text} my-1`}>
+                    {location.aqi}
                 </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-600">
-                    <span className="flex items-center space-x-1">
-                        <span className="text-slate-400">Sumber:</span>
-                        <strong className="font-semibold text-slate-700">{location.aqi_source}</strong>
-                    </span>
-                    <span className="flex items-center space-x-1">
-                        <span className="text-slate-400">Diperbarui:</span>
-                        <strong className="font-semibold text-slate-700">{updatedFormatted} WIB</strong>
-                    </span>
+                <div className={`inline-flex items-center px-3.5 py-1 rounded-full text-sm font-bold ${theme.badgeBg} ${theme.badgeText}`}>
+                    {location.aqi_category}
                 </div>
             </div>
 
-            {/* Info Modal */}
-            {showInfoModal && (
-                <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-bold text-slate-900 flex items-center space-x-2">
-                                <Info size={18} className="text-teal-600" />
-                                <span>Tentang Data Kualitas Udara</span>
-                            </h3>
-                            <button
-                                onClick={() => setShowInfoModal(false)}
-                                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer"
-                            >
-                                <X size={18} />
-                            </button>
-                        </div>
-                        <div className="text-sm text-slate-600 space-y-2.5">
-                            <p>
-                                Data kualitas udara (AQI) ditampilkan secara transparan untuk memberikan konteks lingkungan di sekitarmu.
-                            </p>
-                            {location.aqi_source.toLowerCase().includes('model') ? (
-                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs">
-                                    <strong>Catatan Sumber Model:</strong> Data merupakan estimasi/model matematis, bukan hasil pengukuran sensor langsung dari stasiun pemantau.
-                                </div>
-                            ) : (
-                                <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs">
-                                    <strong>Stasiun Resmi:</strong> Data diukur langsung oleh sensor stasiun pemantau lingkungan fisik.
-                                </div>
-                            )}
-                            <p className="text-xs text-slate-500">
-                                Angka AQI bertujuan memberikan kesadaran perlindungan diri seperti penggunaan masker atau pembatasan aktivitas fisik berat di luar ruangan.
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => setShowInfoModal(false)}
-                            className="mt-4 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl cursor-pointer"
-                        >
-                            Saya Paham
-                        </button>
-                    </div>
-                </div>
-            )}
-        </>
+            <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-600">
+                <span className="flex items-center space-x-1">
+                    <span className="text-slate-400">Sumber:</span>
+                    <strong className="font-semibold text-slate-700">{location.aqi_source}</strong>
+                </span>
+                <span className="flex items-center space-x-1">
+                    <span className="text-slate-400">Diperbarui:</span>
+                    <strong className="font-semibold text-slate-700">{updatedFormatted} WIB</strong>
+                </span>
+            </div>
+        </div>
     );
 };
