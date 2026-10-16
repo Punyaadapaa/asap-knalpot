@@ -22,12 +22,22 @@ export interface Triase {
   kategori: KategoriTriase;
   pesan: string;
   saran: string[];
+  catatan: string; // required disclaimer, shown in the UI
 }
+
+export type Kondisi = "membaik" | "stabil" | "memburuk";
+
+// Optional per-symptom duration in days. Falls back to durasi_hari when absent.
+export type DurasiPerGejala = Record<string, number>;
 
 export interface LaporRequest {
   lokasi_id: string;
   gejala: string[];
   durasi_hari: number;
+  kondisi?: Kondisi; // optional: old clients still work
+  suhu_c?: number;
+  durasi_per_gejala?: DurasiPerGejala; // per-symptom days, overrides durasi_hari
+  kelompok_rentan?: boolean; // anak, lansia, ibu hamil
 }
 
 export interface LaporResponse {

@@ -10,6 +10,8 @@ const GEJALA: [string, string][] = [
   ["sesak_berat", "Sesak napas berat"],
   ["demam", "Demam"],
   ["pilek", "Pilek / hidung tersumbat"],
+  ["sakit_tenggorokan", "Sakit / perih tenggorokan"],
+  ["mata_perih", "Mata perih / berair"],
   ["nyeri_dada", "Nyeri dada"],
   ["bibir_membiru", "Bibir/kuku membiru"],
   ["batuk_darah", "Batuk darah"],
