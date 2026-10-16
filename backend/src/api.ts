@@ -4,12 +4,14 @@
 // (stasiun BMKG via WAQI), dan aturan triase repo (backend/src/triase.ts).
 // Entry point yang menyajikannya: backend/index.ts.
 import path from "path";
+import { ambilAqi } from "./aqi";
 import { db } from "./db";
 import { hitungTriase } from "./triase";
 import type {
   DurasiPerGejala,
   KategoriTriase,
   Kondisi,
+  Lingkungan,
   Triase,
 } from "../../shared/types";
 
@@ -58,12 +60,32 @@ type Kec = { id: string; nama: string; lat: number; lng: number };
 
 // Kota Yogyakarta tidak punya stasiun pemantau sendiri, jadi AQI dan RTH hanya
 // ada satu nilai untuk seluruh kota. Nilai sama dipakai untuk semua kecamatan.
-const lingkungan = (await Bun.file(
+let lingkungan = (await Bun.file(
   path.join(DATA, "lingkungan.json"),
-).json()) as {
-  aqi: { nilai: number; kategori: string; sumber: string; diperbarui: string };
-  rth: { total_persen: number };
-};
+).json()) as Lingkungan;
+
+// Segarkan AQI sekali saat server start (kalau WAQI_TOKEN ada), di latar
+// belakang supaya start tidak tertahan jaringan. Gagal -> tetap pakai file.
+// Matikan dengan AQI_REFRESH=off (dipakai saat pengujian).
+if (process.env.AQI_REFRESH !== "off" && process.env.WAQI_TOKEN) {
+  void (async () => {
+    try {
+      const aqi = await ambilAqi();
+      lingkungan = { ...lingkungan, aqi };
+      await Bun.write(
+        path.join(DATA, "lingkungan.json"),
+        JSON.stringify(lingkungan, null, 2) + "\n",
+      );
+      console.log(
+        `AQI: ${aqi.nilai} (${aqi.kategori}) - ${aqi.stasiun.nama} - ${aqi.diperbarui}`,
+      );
+    } catch (e) {
+      console.warn(
+        `Gagal menyegarkan AQI, pakai data file: ${(e as Error).message}`,
+      );
+    }
+  })();
+}
 
 const NAMA_HARI = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 const NAMA_BULAN = [
@@ -273,7 +295,7 @@ const TRIASE_DETAIL = {
     recommendations: [
       "Kunjungi Puskesmas atau fasilitas kesehatan terdekat",
       "Gunakan masker medis untuk melindungi orang sekitar",
-      "Catat durasi dan perubahan suhu tubuh secara berkala",
+      "Catat durasi dan perkembangan gejala secara berkala",
     ],
     actions: [
       {
@@ -326,7 +348,6 @@ async function lapor(req: Request): Promise<Response> {
     symptoms?: string[];
     duration_days?: number;
     kondisi?: Kondisi;
-    suhu_c?: number;
     durasi_per_gejala?: DurasiPerGejala;
     kelompok_rentan?: boolean;
   };
@@ -346,11 +367,6 @@ async function lapor(req: Request): Promise<Response> {
   if (
     body.kondisi !== undefined &&
     !["membaik", "stabil", "memburuk"].includes(body.kondisi)
-  )
-    return json({ status: "error", message: "Data laporan tidak valid." }, 422);
-  if (
-    body.suhu_c !== undefined &&
-    (!Number.isFinite(body.suhu_c) || body.suhu_c < 30 || body.suhu_c > 45)
   )
     return json({ status: "error", message: "Data laporan tidak valid." }, 422);
   if (
@@ -384,7 +400,6 @@ async function lapor(req: Request): Promise<Response> {
     gejala: body.symptoms!,
     durasi_hari: body.duration_days!,
     kondisi: body.kondisi,
-    suhu_c: body.suhu_c,
     durasi_per_gejala: body.durasi_per_gejala,
     kelompok_rentan: body.kelompok_rentan,
   });

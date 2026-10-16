@@ -50,7 +50,9 @@ export async function ambilAqi(): Promise<Lingkungan["aqi"]> {
   if (!token) throw new Error("WAQI_TOKEN belum di-set (lihat .env.example).");
   const stasiun = process.env.WAQI_STASIUN ?? "yogyakarta";
 
-  const res = await fetch(`https://api.waqi.info/feed/${stasiun}/?token=${token}`);
+  const res = await fetch(`https://api.waqi.info/feed/${stasiun}/?token=${token}`, {
+    signal: AbortSignal.timeout(5000),
+  });
   const body = (await res.json()) as { status: string; data: WaqiData | string };
   if (body.status !== "ok" || typeof body.data === "string")
     throw new Error(`WAQI gagal: ${JSON.stringify(body.data)}`);

@@ -72,8 +72,8 @@ export function hitungTriase(l: InputTriase): Triase {
   // Rule 2: mild-medium shortness of breath = category 2 any day
   if (l.gejala.includes("sesak")) return PESAN.sesak;
 
-  // Rule 3: high fever for 3+ days
-  if ((l.suhu_c ?? 0) > 38 && hari("demam") >= 3) return PESAN.demamPanjang;
+  // Rule 3: fever for 3+ days (only if "demam" is among the symptoms)
+  if (l.gejala.includes("demam") && hari("demam") >= 3) return PESAN.demamPanjang;
 
   // Rule 4: cough or fever on day 4+ and not clearly improving.
   // Uses the longest duration among cough/fever, so one long symptom is enough.

@@ -24,7 +24,6 @@ export interface InputTriase {
   gejala: string[];
   durasi_hari: number;
   kondisi?: Kondisi;
-  suhu_c?: number;
   durasi_per_gejala?: DurasiPerGejala;
   kelompok_rentan?: boolean; // anak, lansia, ibu hamil
 }
