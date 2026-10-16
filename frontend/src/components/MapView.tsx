@@ -164,7 +164,7 @@ export const MapView: React.FC<MapViewProps> = ({
             // Badge text or icon inside the pin
             let badgeText = '';
             if (activeLayer === 'gejala') {
-                badgeText = loc.privacy_hidden ? '🔒' : `${loc.total_reports_7d ?? '•'}`;
+                badgeText = loc.privacy_hidden ? '<3' : `${loc.total_reports_7d ?? '•'}`;
             } else if (activeLayer === 'aqi') {
                 badgeText = `${loc.aqi}`;
             } else {

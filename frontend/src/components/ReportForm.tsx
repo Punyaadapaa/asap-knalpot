@@ -351,9 +351,9 @@ export const ReportForm: React.FC<ReportFormProps> = ({
                                     return (
                                         <span
                                             key={id}
-                                            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 shadow-xs"
+                                            className="inline-flex items-center px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 shadow-xs"
                                         >
-                                            <span>{s?.icon}</span>
+                                            
                                             <span>{s?.nama || id}</span>
                                         </span>
                                     );

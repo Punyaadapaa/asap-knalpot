@@ -57,7 +57,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
     };
 
     const getSymptomMeta = (id: string) => {
-        return symptomsList.find((s) => s.id === id) || { nama: id, icon: '😷' };
+        return symptomsList.find((s) => s.id === id) || { nama: id };
     };
 
     return (
@@ -91,7 +91,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
                     <div className="flex items-center space-x-6">
                         <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-lg">
-                                📋
+                                <UserCheck size={18} />
                             </div>
                             <div>
                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
@@ -221,7 +221,7 @@ export const GejalaSaya: React.FC<GejalaSayaProps> = ({
                                                         key={symId}
                                                         className="inline-flex items-center gap-1 text-xs font-medium text-slate-600"
                                                     >
-                                                        <span>{meta.icon}</span>
+                                                        
                                                         <span>{meta.nama}</span>
                                                     </span>
                                                 );

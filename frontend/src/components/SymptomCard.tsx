@@ -23,20 +23,15 @@ export const SymptomCard: React.FC<SymptomCardProps> = ({
                     : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/60 shadow-xs'
             }`}
         >
-            <div className="flex items-center space-x-3">
-                <span className="text-2xl leading-none" role="img" aria-label={symptom.nama}>
-                    {symptom.icon}
+            <div>
+                <span className={`text-sm font-bold block ${selected ? 'text-teal-950' : 'text-slate-800'}`}>
+                    {symptom.nama}
                 </span>
-                <div>
-                    <span className={`text-sm font-bold block ${selected ? 'text-teal-950' : 'text-slate-800'}`}>
-                        {symptom.nama}
+                {symptom.is_emergency && (
+                    <span className="text-[10px] font-semibold text-rose-600 uppercase tracking-wider block">
+                        Prioritas Medis
                     </span>
-                    {symptom.is_emergency && (
-                        <span className="text-[10px] font-semibold text-rose-600 uppercase tracking-wider block">
-                            Prioritas Medis
-                        </span>
-                    )}
-                </div>
+                )}
             </div>
 
             <div

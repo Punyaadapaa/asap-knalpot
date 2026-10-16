@@ -25,7 +25,6 @@ export interface LocationItem {
 export interface SymptomItem {
     id: string;
     nama: string;
-    icon: string;
     is_emergency: boolean;
     sort_order?: number;
 }

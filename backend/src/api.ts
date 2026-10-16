@@ -96,20 +96,6 @@ const URUTAN_GEJALA = [
   "sulit_bicara",
   "kesadaran_turun",
 ];
-const IKON: Record<string, string> = {
-  batuk: "😷",
-  sesak: "😮‍💨",
-  sesak_berat: "🫁",
-  demam: "🤒",
-  pilek: "🤧",
-  sakit_tenggorokan: "😣",
-  mata_perih: "👁️",
-  nyeri_dada: "💔",
-  bibir_membiru: "💙",
-  batuk_darah: "🩸",
-  sulit_bicara: "🗣️",
-  kesadaran_turun: "😵",
-};
 // Harus sama dengan DARURAT di backend/src/triase.ts.
 const DARURAT = [
   "sesak_berat",
@@ -224,8 +210,7 @@ function gejala() {
     .map((g, i) => ({
       id: g.kode,
       nama: g.label,
-      icon: IKON[g.kode] ?? "•",
-      is_emergency: DARURAT.includes(g.kode),
+          is_emergency: DARURAT.includes(g.kode),
       sort_order: i + 1,
     }));
 }

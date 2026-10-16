@@ -370,11 +370,11 @@ export const Home: React.FC<HomeProps> = ({
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                                 <div>
                                     <h3 className="text-2xl font-black text-slate-900 flex items-center space-x-2.5">
-                                        <span>📊</span>
+                                        
                                         <span>Tren Laporan Gejala Pernapasan — {currentLocation.nama}</span>
                                     </h3>
                                     <p className="text-sm text-slate-500 mt-1 font-medium">
-                                        Data harian 7 hari terakhir agregat laporan batuk, demam, pilek, dan keluhan pernapasan warga.
+                                        Laporan harian 7 hari terakhir.
                                     </p>
                                 </div>
                                 <button
@@ -510,7 +510,7 @@ export const Home: React.FC<HomeProps> = ({
                                     Sedang Mengalami Gejala Pernapasan?
                                 </h3>
                                 <p className="text-sm lg:text-base text-teal-100 mt-3 leading-relaxed font-normal">
-                                    Bantu deteksi dini lonjakan influenza & dampak polusi asap knalpot di wilayahmu dengan melaporkan gejala secara anonim.
+                                    Bantu deteksi dini gejala pernapasan dan dampak polusi di wilayahmu lewat laporan anonim.
                                 </p>
                             </div>
 
@@ -582,15 +582,15 @@ export const Home: React.FC<HomeProps> = ({
                         {/* 3. Edukasi: Influenza vs Polusi Knalpot */}
                         <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-xs space-y-4">
                             <div className="flex items-center space-x-2 text-slate-900">
-                                <span className="text-xl">💡</span>
+                                
                                 <h3 className="text-base font-black">Kenali Perbedaan Gejala</h3>
                             </div>
                             <p className="text-xs text-slate-500 font-medium">
-                                Panduan membedakan iritasi saluran pernapasan akibat asap knalpot vs influenza
+                                Gejala akibat polusi knalpot vs infeksi flu
                             </p>
 
                             <div className="space-y-3 pt-1">
-                                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 space-y-1">
+                                <div className="space-y-1 border-t-2 border-amber-300 pt-3">
                                     <span className="text-xs font-black text-amber-900 uppercase tracking-wide block">
                                         Akibat Asap & Polusi
                                     </span>
@@ -599,7 +599,7 @@ export const Home: React.FC<HomeProps> = ({
                                     </p>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200/80 space-y-1">
+                                <div className="space-y-1 border-t-2 border-blue-300 pt-3">
                                     <span className="text-xs font-black text-blue-900 uppercase tracking-wide block">
                                         Akibat Infeksi Flu / ISPA
                                     </span>
@@ -684,7 +684,7 @@ export const Home: React.FC<HomeProps> = ({
                         className="w-full h-14 bg-teal-700 hover:bg-teal-800 active:scale-[0.99] text-white rounded-2xl font-black text-base shadow-lg shadow-teal-700/25 flex items-center justify-center space-x-2.5 transition-all cursor-pointer"
                     >
                         <PlusCircle size={22} className="text-teal-200" />
-                        <span>📝 Laporkan Gejala</span>
+                        <span>Laporkan Gejala</span>
                     </button>
                     <div className="flex items-center justify-center space-x-1.5 mt-2 text-[11px] text-slate-400">
                         <Shield size={12} className="text-teal-600" />

@@ -670,7 +670,7 @@ export const App: React.FC = () => {
 
                     {/* Right side: View Mode Switcher + Location Badge + Action */}
                     <div className="flex items-center space-x-4">
-                        {/* 🖥️ Desktop / 📱 Mobile View Switcher */}
+                        {/* Desktop / Mobile View Switcher */}
                         <ViewModeSelector mode={displayMode} onChange={handleSetDisplayMode} />
 
                         {currentLocation && (
