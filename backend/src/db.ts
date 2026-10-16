@@ -32,8 +32,11 @@ db.exec(`
      dibuat_pada  TEXT NOT NULL
    );
 
-   CREATE UNIQUE INDEX IF NOT EXISTS laporan_device_harian
-     ON laporan(device_hash, date(dibuat_pada));
    CREATE INDEX IF NOT EXISTS laporan_kecamatan_waktu
      ON laporan(kecamatan_id, dibuat_pada);
    `);
+
+// Frontend baru tidak mengirim id perangkat, jadi aturan "1 laporan per
+// perangkat per hari" tidak berlaku lagi. Hapus indeksnya kalau basis data
+// lama masih punya. Pembatas spam sekarang hanya hash IP.
+db.exec("DROP INDEX IF EXISTS laporan_device_harian;");
