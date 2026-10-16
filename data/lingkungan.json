@@ -1,36 +1,21 @@
 {
   "aqi": {
-    "nilai": 124,
-    "kategori": "Tidak Sehat untuk Kelompok Sensitif",
+    "nilai": 93,
+    "kategori": "Sedang",
     "polutan_dominan": "pm2.5",
-    "pm25": 124,
+    "sumber": "stasiun",
     "stasiun": {
       "nama": "Sleman, Indonesia",
       "penyelenggara": "BMKG",
-      "lat": -7.731,
-      "lng": 110.354,
-      "id_waqi": 13653,
-      "url": "https://aqicn.org/city/indonesia/sleman"
+      "jarak_km": 7
     },
-    "sumber": "BMKG via WAQI (World Air Quality Index)",
-    "diperbarui": "2026-10-13T21:00:00+07:00",
-    "catatan": "Kota Yogyakarta tidak memiliki stasiun pemantau sendiri. Nilai diambil dari stasiun terdekat di Sleman (±7 km). Satu nilai untuk seluruh kota.",
-    "forecast_tersedia": true
+    "diperbarui": "2026-10-15T19:00:00+07:00"
   },
   "rth": {
     "total_persen": 23.351,
     "publik_persen": 8.063,
     "privat_persen": 15.288,
     "target_uu_persen": 30,
-    "target_uu_publik_persen": 20,
-    "sumber": "Pemerintah Kota Yogyakarta (warta.jogjakota.go.id), Maret 2026",
-    "url": "https://warta.jogjakota.go.id/detail/index/47027/pemanfaatan-rth-kian-diperluas-dari-ruang-hijau-hingga-pusat-aktivitas-warga-2026-03-03",
-    "catatan": "Angka level kota, tidak tersedia per kecamatan."
-  },
-  "peta": {
-    "basemap": "OpenStreetMap",
-    "atribusi": "© OpenStreetMap contributors",
-    "pusat": { "lat": -7.7956, "lng": 110.3695 },
-    "zoom": 13
+    "sumber": "Pemerintah Kota Yogyakarta, Mar 2026"
   }
 }
