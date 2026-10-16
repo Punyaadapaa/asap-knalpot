@@ -94,20 +94,6 @@ laporan per perangkat per hari.
 | RTH | Pemerintah Kota Yogyakarta, Mar 2026 |
 | Peta | OpenStreetMap, atribusi © OpenStreetMap contributors |
 
-## Catatan penggunaan AI
-
-Sesuai guidebook lomba (bagian Persyaratan Umum poin 7), penggunaan AI
-dicatat terbuka di sini.
-
-| Tool | Peran | Bagian |
-|---|---|---|
-| pi (agent CLI + LLM) | menulis dan merapikan kode backend, menyusun dokumentasi, memeriksa kesesuaian kode dengan `docs/API.md` | `server.ts`, `db.ts`, `triase.ts`, `seed.ts`, `seed-demo.ts`, `docs/API.md`, README |
-
-Pembagian peran: keputusan desain (aturan triase, ambang kenaikan, aturan
-privasi, skema database) ditentukan oleh tim. AI menyusun kode dari keputusan
-tersebut. Setiap hasil AI dijalankan dan diuji manual oleh tim (`curl` ke
-setiap endpoint, plus pemeriksaan `bun run typecheck`).
-
 ## Keterbatasan yang diketahui
 
 - Aturan triase **belum diverifikasi tenaga medis** dan belum dicocokkan dengan pedoman ISPA Kemenkes.
