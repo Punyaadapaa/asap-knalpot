@@ -1,6 +1,9 @@
 import { DashboardResponseData, LocationItem, PetaDataResponse, SubmitReportResponse, SymptomItem } from './types';
 
-const API_BASE = '/api';
+// Default: same-origin '/api' (dev lewat proxy Vite).
+// Saat FE dan BE dipisah (mis. Render), set VITE_API_BASE saat build:
+//   VITE_API_BASE=https://<backend>.onrender.com/api
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 export async function fetchLokasi(): Promise<LocationItem[]> {
     const res = await fetch(`${API_BASE}/lokasi`);
