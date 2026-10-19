@@ -10,6 +10,8 @@ build/
 .env
 .env.*
 !.env.example
+# Konfigurasi build frontend, bukan rahasia.
+!frontend/.env.production
 
 # Database
 *.db

@@ -20,9 +20,14 @@ const HARI = 24 * 60 * 60 * 1000;
 const WIB = 7 * 60 * 60 * 1000; // batas hari memakai WIB, bukan UTC
 const KOTA = "Yogyakarta";
 
+// Origin frontend. Trailing slash dibuang supaya cocok dengan header Origin
+// browser, yang tidak pernah memakai slash di akhir.
+const CORS_ORIGIN = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+  .trim()
+  .replace(/\/+$/, "");
+
 export const CORS = {
-  "Access-Control-Allow-Origin":
-    process.env.CORS_ORIGIN ?? "http://localhost:5173",
+  "Access-Control-Allow-Origin": CORS_ORIGIN,
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Requested-With",
