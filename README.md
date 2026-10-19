@@ -1,6 +1,6 @@
 # Asap-Kenalpot/Influenza Aware
 
-Pantau Udara. Kenali Gejala. Jaga Kota.
+Pantau Udara. Kenali Gejala. Jaga Kota..
 
 Platform pemantauan kualitas udara dan sinyal kesehatan pernapasan komunitas
 tingkat kecamatan untuk Kota Yogyakarta. Dibuat untuk Hackathon JOINTS x
